@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mistxyt.netshield_iot.domain.model.Device
+import com.mistxyt.netshield_iot.domain.model.DeviceType
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
 import com.mistxyt.netshield_iot.domain.repository.DeviceRepository
 import com.mistxyt.netshield_iot.domain.repository.DnsRepository
@@ -30,7 +31,9 @@ data class DevicesUiState(
             val filtered = devices.filter { device ->
                 searchQuery.isBlank() ||
                         device.ipAddress.contains(searchQuery, ignoreCase = true) ||
-                        (device.macAddress?.contains(searchQuery, ignoreCase = true) == true)
+                        device.displayName.contains(searchQuery, ignoreCase = true) ||
+                        (device.macAddress?.contains(searchQuery, ignoreCase = true) == true) ||
+                        (device.detectedModel?.contains(searchQuery, ignoreCase = true) == true)
             }
             return when (sortOption) {
                 DeviceSortOption.MOST_REQUESTS -> filtered.sortedByDescending { it.requestCount }
@@ -51,8 +54,10 @@ class DevicesViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
     private val _selectedDevice = MutableStateFlow<Device?>(null)
+    private val _editingDevice = MutableStateFlow<Device?>(null)
 
     val selectedDevice: StateFlow<Device?> = _selectedDevice.asStateFlow()
+    val editingDevice: StateFlow<Device?> = _editingDevice.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val selectedDeviceQueries: StateFlow<List<DnsEvent>> = _selectedDevice
@@ -100,6 +105,26 @@ class DevicesViewModel(
 
     fun dismissDeviceDetails() {
         _selectedDevice.value = null
+    }
+
+    fun showEditDialog(device: Device) {
+        _editingDevice.value = device
+    }
+
+    fun hideEditDialog() {
+        _editingDevice.value = null
+    }
+
+    fun updateDeviceAlias(device: Device, newName: String, newType: DeviceType) {
+        viewModelScope.launch {
+            deviceRepository.updateDeviceDetails(device.id, newName.trim(), newType)
+        }
+    }
+
+    fun toggleInternetPause(device: Device) {
+        viewModelScope.launch {
+            deviceRepository.toggleInternetPause(device.id, !device.isInternetPaused)
+        }
     }
 
     fun refresh() {

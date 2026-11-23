@@ -2,6 +2,7 @@ package com.mistxyt.netshield_iot.data.repository
 
 import android.content.Context
 import com.mistxyt.netshield_iot.core.util.DateTimeHelper
+import com.mistxyt.netshield_iot.core.util.DeviceFingerprintHelper
 import com.mistxyt.netshield_iot.core.util.DomainFilterHelper
 import com.mistxyt.netshield_iot.core.util.NotificationHelper
 import com.mistxyt.netshield_iot.data.demo.DemoDataProvider
@@ -96,14 +97,20 @@ class DnsRepositoryImpl(
 
                 dnsEventDao.insertEvent(DnsEventEntity.fromDomain(event))
 
-                // 3. Catat / perbarui aktivitas perangkat klien secara langsung
+                // 3. Catat / perbarui aktivitas perangkat klien secara langsung & deteksi jenis perangkat (Apple/Windows/Android)
                 val existingDevice = deviceDao.getDeviceByIp(event.clientIp)
+                val fingerprint = DeviceFingerprintHelper.detect(event.clientIp, event.domain)
+                val model = existingDevice?.detectedModel ?: fingerprint?.detectedModel
+                val type = existingDevice?.deviceType ?: (fingerprint?.deviceType ?: "SMARTPHONE")
+
                 if (existingDevice != null) {
                     deviceDao.insertOrUpdateDevice(
                         existingDevice.copy(
                             requestCount = existingDevice.requestCount + 1,
                             blockedCount = if (isBlocked) existingDevice.blockedCount + 1 else existingDevice.blockedCount,
-                            lastActivity = validTimestamp
+                            lastActivity = validTimestamp,
+                            detectedModel = model,
+                            deviceType = type
                         )
                     )
                 } else {
@@ -114,7 +121,9 @@ class DnsRepositoryImpl(
                             macAddress = "Active Client",
                             requestCount = 1,
                             blockedCount = if (isBlocked) 1 else 0,
-                            lastActivity = validTimestamp
+                            lastActivity = validTimestamp,
+                            detectedModel = model,
+                            deviceType = type
                         )
                     )
                 }

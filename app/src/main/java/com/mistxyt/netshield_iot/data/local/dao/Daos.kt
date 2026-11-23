@@ -53,6 +53,15 @@ interface DeviceDao {
     @Query("SELECT * FROM devices WHERE ipAddress = :ipAddress LIMIT 1")
     fun getDeviceByIp(ipAddress: String): DeviceEntity?
 
+    @Query("SELECT * FROM devices WHERE id = :id LIMIT 1")
+    fun getDeviceById(id: String): DeviceEntity?
+
+    @Query("UPDATE devices SET customName = :customName, deviceType = :deviceType WHERE id = :id")
+    fun updateDeviceAlias(id: String, customName: String, deviceType: String)
+
+    @Query("UPDATE devices SET isInternetPaused = :isPaused WHERE id = :id")
+    fun updateInternetPaused(id: String, isPaused: Boolean)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrUpdateDevice(device: DeviceEntity)
 

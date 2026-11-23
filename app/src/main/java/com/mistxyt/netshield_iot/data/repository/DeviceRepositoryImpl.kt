@@ -53,13 +53,19 @@ class DeviceRepositoryImpl(
             val response = api.getDevices()
             if (response.isSuccessful && response.body() != null) {
                 val entities = response.body()!!.map { dto ->
+                    val ip = dto.ipAddress ?: "192.168.1.1"
+                    val existing = deviceDao.getDeviceByIp(ip)
                     DeviceEntity(
-                        id = dto.id ?: dto.ipAddress ?: "dev-${(100..999).random()}",
-                        ipAddress = dto.ipAddress ?: "192.168.1.1",
-                        macAddress = dto.macAddress ?: "Active Client",
-                        requestCount = dto.requestCount ?: 0,
-                        blockedCount = dto.blockedCount ?: 0,
-                        lastActivity = DateTimeHelper.resolveValidEpochMs(dto.lastActivity)
+                        id = dto.id ?: existing?.id ?: "dev-${ip.replace('.', '-')}",
+                        ipAddress = ip,
+                        macAddress = dto.macAddress ?: existing?.macAddress ?: "Active Client",
+                        requestCount = dto.requestCount ?: existing?.requestCount ?: 0,
+                        blockedCount = dto.blockedCount ?: existing?.blockedCount ?: 0,
+                        lastActivity = DateTimeHelper.resolveValidEpochMs(dto.lastActivity),
+                        customName = existing?.customName,
+                        deviceType = existing?.deviceType ?: "SMARTPHONE",
+                        detectedModel = existing?.detectedModel ?: (if (ip.endsWith(".1")) "Hotspot Gateway / Router" else null),
+                        isInternetPaused = existing?.isInternetPaused ?: false
                     )
                 }
                 deviceDao.insertDevices(entities)
@@ -67,6 +73,28 @@ class DeviceRepositoryImpl(
             } else {
                 Result.failure(Exception("HTTP Error: ${response.code()}"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateDeviceDetails(
+        id: String,
+        customName: String,
+        deviceType: com.mistxyt.netshield_iot.domain.model.DeviceType
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            deviceDao.updateDeviceAlias(id, customName, deviceType.name)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun toggleInternetPause(id: String, isPaused: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            deviceDao.updateInternetPaused(id, isPaused)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

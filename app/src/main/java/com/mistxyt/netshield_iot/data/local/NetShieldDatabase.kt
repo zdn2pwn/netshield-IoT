@@ -17,7 +17,7 @@ import com.mistxyt.netshield_iot.data.local.entity.DnsEventEntity
         BlockedDomainEntity::class,
         DeviceEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class NetShieldDatabase : RoomDatabase() {

@@ -5,6 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mistxyt.netshield_iot.domain.model.BlockedDomain
 import com.mistxyt.netshield_iot.domain.model.Device
+import com.mistxyt.netshield_iot.domain.model.DeviceType
 import com.mistxyt.netshield_iot.domain.model.DnsAction
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
 
@@ -90,7 +91,11 @@ data class DeviceEntity(
     val macAddress: String?,
     val requestCount: Int,
     val blockedCount: Int,
-    val lastActivity: Long
+    val lastActivity: Long,
+    val customName: String? = null,
+    val deviceType: String? = "SMARTPHONE",
+    val detectedModel: String? = null,
+    val isInternetPaused: Boolean = false
 ) {
     fun toDomain(): Device = Device(
         id = id,
@@ -98,7 +103,11 @@ data class DeviceEntity(
         macAddress = macAddress,
         requestCount = requestCount,
         blockedCount = blockedCount,
-        lastActivity = lastActivity
+        lastActivity = lastActivity,
+        customName = customName,
+        deviceType = DeviceType.fromString(deviceType),
+        detectedModel = detectedModel,
+        isInternetPaused = isInternetPaused
     )
 
     companion object {
@@ -108,7 +117,11 @@ data class DeviceEntity(
             macAddress = device.macAddress,
             requestCount = device.requestCount,
             blockedCount = device.blockedCount,
-            lastActivity = device.lastActivity
+            lastActivity = device.lastActivity,
+            customName = device.customName,
+            deviceType = device.deviceType.name,
+            detectedModel = device.detectedModel,
+            isInternetPaused = device.isInternetPaused
         )
     }
 }
