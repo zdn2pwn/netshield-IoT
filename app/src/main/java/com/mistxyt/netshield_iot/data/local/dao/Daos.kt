@@ -14,6 +14,9 @@ interface DnsEventDao {
     @Query("SELECT * FROM dns_events ORDER BY timestamp DESC")
     fun getAllEvents(): Flow<List<DnsEventEntity>>
 
+    @Query("SELECT * FROM dns_events WHERE clientIp = :clientIp ORDER BY timestamp DESC LIMIT :limit")
+    fun getEventsByClientIp(clientIp: String, limit: Int = 100): Flow<List<DnsEventEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertEvent(event: DnsEventEntity)
 
@@ -46,6 +49,9 @@ interface BlockedDomainDao {
 interface DeviceDao {
     @Query("SELECT * FROM devices ORDER BY lastActivity DESC")
     fun getAllDevices(): Flow<List<DeviceEntity>>
+
+    @Query("SELECT * FROM devices WHERE ipAddress = :ipAddress LIMIT 1")
+    fun getDeviceByIp(ipAddress: String): DeviceEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrUpdateDevice(device: DeviceEntity)

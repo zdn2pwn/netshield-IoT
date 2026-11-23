@@ -14,6 +14,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mistxyt.netshield_iot.R
 
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
+import com.mistxyt.netshield_iot.domain.model.DnsAction
+import com.mistxyt.netshield_iot.domain.model.DnsEvent
+import com.mistxyt.netshield_iot.ui.theme.StatusAllowedGreen
+import com.mistxyt.netshield_iot.ui.theme.StatusBlockedRed
+
 private val DOMAIN_REGEX = Regex("^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)+$")
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -174,4 +182,131 @@ fun ConfirmDeleteDialog(
         },
         modifier = modifier
     )
+}
+
+@Composable
+fun DnsEventDetailDialog(
+    event: DnsEvent,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    onFilterClientIp: ((String) -> Unit)? = null
+) {
+    val clipboardManager = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
+    val isBlocked = event.action == DnsAction.BLOCK
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Detail Kueri DNS",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                ActionBadge(isBlocked = isBlocked)
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Domain Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = "Domain Tujuan",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = event.domain,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isBlocked) StatusBlockedRed else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+
+                // Metadata Rows
+                DetailItemRow(label = "Status Tindakan", value = if (isBlocked) "DIBLOKIR (Proteksi Aktif)" else "DIIZINKAN")
+                DetailItemRow(label = "Kategori", value = event.category)
+                DetailItemRow(label = "IP Klien", value = event.clientIp)
+                DetailItemRow(label = "Tipe Kueri", value = event.queryType)
+                DetailItemRow(label = "Waktu Akses", value = DateTimeHelper.formatWibFullDateTime(event.timestamp))
+                DetailItemRow(label = "Mesin Filter", value = event.source)
+
+                if (isBlocked) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+                        )
+                    ) {
+                        Text(
+                            text = "Akses dicegat oleh NetShield IoT untuk menjaga keamanan jaringan lokal dari situs terlarang/berbahaya.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        clipboardManager.setText(AnnotatedString(event.domain))
+                        copied = true
+                    },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(if (copied) "Disalin!" else "Salin Domain")
+                }
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Tutup")
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun DetailItemRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }

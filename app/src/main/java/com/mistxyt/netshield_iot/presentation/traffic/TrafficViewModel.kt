@@ -18,11 +18,12 @@ enum class TrafficFilterAction {
 data class TrafficUiState(
     val events: List<DnsEvent> = emptyList(),
     val searchQuery: String = "",
-    val actionFilter: TrafficFilterAction = TrafficFilterAction.ALL,
+    val actionFilter: TrafficFilterAction = TrafficFilterAction.BLOCKED,
     val categoryFilter: String = "All",
     val isPaused: Boolean = false,
     val isConnected: Boolean = true,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val selectedEvent: DnsEvent? = null
 ) {
     val filteredEvents: List<DnsEvent>
         get() = events.filter { event ->
@@ -60,10 +61,11 @@ class TrafficViewModel(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _actionFilter = MutableStateFlow(TrafficFilterAction.ALL)
+    private val _actionFilter = MutableStateFlow(TrafficFilterAction.BLOCKED)
     private val _categoryFilter = MutableStateFlow("All")
     private val _isPaused = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
+    private val _selectedEvent = MutableStateFlow<DnsEvent?>(null)
     private val _eventsList = MutableStateFlow<List<DnsEvent>>(emptyList())
 
     private val filtersFlow: Flow<TrafficFilters> = combine(
@@ -85,8 +87,9 @@ class TrafficViewModel(
     val uiState: StateFlow<TrafficUiState> = combine(
         _eventsList,
         filtersFlow,
-        statusFlow
-    ) { events, filters, status ->
+        statusFlow,
+        _selectedEvent
+    ) { events, filters, status, selected ->
         TrafficUiState(
             events = events,
             searchQuery = filters.query,
@@ -94,7 +97,8 @@ class TrafficViewModel(
             categoryFilter = filters.category,
             isPaused = status.isPaused,
             isConnected = status.isConnected,
-            isRefreshing = status.isRefreshing
+            isRefreshing = status.isRefreshing,
+            selectedEvent = selected
         )
     }.stateIn(
         scope = viewModelScope,
@@ -103,25 +107,23 @@ class TrafficViewModel(
     )
 
     init {
-        // Seed from DB recent events
+        // Aliran data reaktif dari DB: otomatis sinkron saat event baru masuk
         viewModelScope.launch {
-            dnsRepository.getRecentEvents(100).first().let { initial ->
-                _eventsList.value = initial
+            dnsRepository.getRecentEvents(150).collect { dbEvents ->
+                if (!_isPaused.value && dbEvents.isNotEmpty()) {
+                    _eventsList.value = dbEvents
+                }
             }
         }
 
-        // Stream live events
+        // Stream live events langsung dari WebSocket untuk update instan
         viewModelScope.launch {
             dnsRepository.observeLiveTraffic().collect { event ->
                 if (!_isPaused.value) {
                     val current = _eventsList.value.toMutableList()
+                    current.removeAll { it.id == event.id }
                     current.add(0, event)
-                    // Keep up to 200 items in memory
-                    if (current.size > 200) {
-                        _eventsList.value = current.take(200)
-                    } else {
-                        _eventsList.value = current
-                    }
+                    _eventsList.value = if (current.size > 200) current.take(200) else current
                 }
             }
         }
@@ -129,6 +131,10 @@ class TrafficViewModel(
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
+    }
+
+    fun selectEvent(event: DnsEvent?) {
+        _selectedEvent.value = event
     }
 
     fun setActionFilter(filter: TrafficFilterAction) {

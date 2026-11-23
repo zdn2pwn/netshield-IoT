@@ -155,16 +155,47 @@ String classifySensitiveDomain(const String& d) {
 bool isNoisyDomain(const String& d) {
   // 1. DoH & Private DNS
   if (d == "dns.google" || d == "cloudflare-dns.com" || d == "one.one.one.one" || d == "dns.quad9.net") return true;
-  // 2. Apple iCloud Private Relay & Telemetry noise
-  if (d.indexOf("mask.icloud.com") >= 0 || d.indexOf("mask-h2.icloud.com") >= 0 ||
-      d.indexOf("metrics.icloud.com") >= 0 || d.indexOf(".aaplimg.com") >= 0 ||
-      d.indexOf(".apple-dns.net") >= 0 || d.indexOf("gateway.icloud.com") >= 0) return true;
-  // 3. Network captive portal probes
-  if (d.indexOf("connectivitycheck.gstatic.com") >= 0 || d.indexOf("msftconnecttest.com") >= 0 ||
-      d.indexOf("captive.apple.com") >= 0 || d.indexOf("clients1.google.com") >= 0 ||
-      d.indexOf("clients3.google.com") >= 0) return true;
-  // 4. Reverse DNS & local broadcast
-  if (d.endsWith(".arpa") || d.endsWith(".local") || d == "wpad") return true;
+
+  // 2. Apple iCloud Private Relay, Push & Background Telemetry
+  if (d.indexOf("mask.icloud") >= 0 || d.indexOf("metrics.icloud") >= 0 ||
+      d.indexOf(".aaplimg.com") >= 0 || d.indexOf(".apple-dns.net") >= 0 ||
+      d.indexOf("gateway.icloud.com") >= 0 || d.indexOf("xp.apple.com") >= 0 ||
+      d.indexOf("push.apple.com") >= 0 || d.indexOf("gsa.apple.com") >= 0 ||
+      d.indexOf("smoot.apple.com") >= 0 || d.indexOf("cl5.apple.com") >= 0 ||
+      d.indexOf("bag.itunes.apple.com") >= 0 || d.indexOf("init.itunes.apple.com") >= 0 ||
+      d.indexOf("time.apple.com") >= 0 || d.indexOf("time-ios.apple.com") >= 0 ||
+      d.indexOf("configuration.apple.com") >= 0 || d.indexOf("weather-data.apple.com") >= 0 ||
+      d.indexOf("ocsp.apple.com") >= 0 || d.indexOf("captive.apple.com") >= 0) return true;
+
+  // 3. Google / Android Background Services & Telemetry
+  if (d.indexOf("connectivitycheck") >= 0 || d.indexOf("clients.google") >= 0 ||
+      d.indexOf("clients1.google") >= 0 || d.indexOf("clients2.google") >= 0 ||
+      d.indexOf("clients3.google") >= 0 || d.indexOf("clients4.google") >= 0 ||
+      d.indexOf("clients5.google") >= 0 || d.indexOf("clients6.google") >= 0 ||
+      d.indexOf(".gvt1.com") >= 0 || d.indexOf(".gvt2.com") >= 0 || d.indexOf(".gvt3.com") >= 0 ||
+      d.indexOf(".1e100.net") >= 0 || d.indexOf(".googleusercontent.com") >= 0 ||
+      d.indexOf("play.googleapis.com") >= 0 || d.indexOf("crashlytics.com") >= 0 ||
+      d.indexOf("app-measurement.com") >= 0 || d.indexOf("firebaseinstallations") >= 0) return true;
+
+  // 4. Microsoft / OS Probes
+  if (d.indexOf("msftconnecttest") >= 0 || d.indexOf("msftncsi") >= 0 ||
+      d.indexOf("trafficmanager.net") >= 0 || d.indexOf("windowsupdate.com") >= 0 ||
+      d.indexOf("telemetry.microsoft.com") >= 0) return true;
+
+  // 5. Certificate & Time Noise
+  if (d.indexOf("ocsp.") >= 0 || d.indexOf("crl.") >= 0 ||
+      d.indexOf("digicert.com") >= 0 || d.indexOf("sectigo.com") >= 0 ||
+      d.indexOf("letsencrypt.org") >= 0 || d.indexOf("pool.ntp.org") >= 0) return true;
+
+  // 6. CDN Video/Image Shards (Bukan Domain Utama)
+  if (d.indexOf("googlevideo.com") >= 0 || d.indexOf("fbcdn.net") >= 0 ||
+      d.indexOf("cdninstagram.com") >= 0) return true;
+
+  // 7. Reverse DNS, Broadcast & Local Discovery
+  if (d.endsWith(".arpa") || d.endsWith(".local") || d.endsWith(".internal") ||
+      d.endsWith(".lan") || d.endsWith(".home") || d == "wpad" ||
+      d.startsWith("_dns-sd") || d.startsWith("_tcp.") || d.startsWith("_udp.")) return true;
+
   return false;
 }
 
@@ -305,7 +336,7 @@ int forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* query
   bool answered = false;
   bool isBlocked = false;
   unsigned long startWait = millis();
-  while (millis() - startWait < 90) {
+  while (millis() - startWait < 60) {
     int respSize = upstreamUdp.parsePacket();
     if (respSize > 0) {
       uint8_t respBuffer[512];
@@ -343,7 +374,9 @@ int forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* query
       }
       break;
     }
-    delay(2);
+    wsServer.loop();
+    restServer.handleClient();
+    delay(1);
   }
   upstreamUdp.stop();
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mistxyt.netshield_iot.R
+import com.mistxyt.netshield_iot.presentation.components.DnsEventDetailDialog
 import com.mistxyt.netshield_iot.presentation.components.DnsEventRow
 import com.mistxyt.netshield_iot.presentation.components.EmptyStateView
 import com.mistxyt.netshield_iot.ui.theme.StatusAllowedGreen
@@ -158,11 +159,17 @@ fun TrafficScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Action Filter Chips (All, Allowed, Blocked)
+                // Action Filter Chips (Blocked by default, All, Allowed)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    FilterChip(
+                        selected = uiState.actionFilter == TrafficFilterAction.BLOCKED,
+                        onClick = { viewModel.setActionFilter(TrafficFilterAction.BLOCKED) },
+                        label = { Text("🛡️ " + stringResource(R.string.traffic_filter_blocked)) },
+                        shape = RoundedCornerShape(8.dp)
+                    )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALL,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
@@ -175,12 +182,37 @@ fun TrafficScreen(
                         label = { Text(stringResource(R.string.traffic_filter_allowed)) },
                         shape = RoundedCornerShape(8.dp)
                     )
-                    FilterChip(
-                        selected = uiState.actionFilter == TrafficFilterAction.BLOCKED,
-                        onClick = { viewModel.setActionFilter(TrafficFilterAction.BLOCKED) },
-                        label = { Text(stringResource(R.string.traffic_filter_blocked)) },
-                        shape = RoundedCornerShape(8.dp)
-                    )
+                }
+
+                // If Blocked filter is active, show informative banner to suppress noise
+                if (uiState.actionFilter == TrafficFilterAction.BLOCKED) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Menyembunyikan log biasa agar tidak bising.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            TextButton(
+                                onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Text("Tampilkan Semua", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
                 }
 
                 // Horizontal Category Chips
@@ -214,7 +246,10 @@ fun TrafficScreen(
                 ) {
                     EmptyStateView(
                         icon = Icons.Outlined.SearchOff,
-                        message = stringResource(R.string.traffic_empty_state)
+                        message = if (uiState.actionFilter == TrafficFilterAction.BLOCKED)
+                            "Belum ada domain terlarang yang diblokir saat ini."
+                        else
+                            stringResource(R.string.traffic_empty_state)
                     )
                 }
             } else {
@@ -235,10 +270,21 @@ fun TrafficScreen(
                         items = filtered,
                         key = { it.id }
                     ) { event ->
-                        DnsEventRow(event = event)
+                        DnsEventRow(
+                            event = event,
+                            onClick = { viewModel.selectEvent(event) }
+                        )
                     }
                 }
             }
+        }
+
+        // Event Detail Dialog
+        uiState.selectedEvent?.let { selected ->
+            DnsEventDetailDialog(
+                event = selected,
+                onDismiss = { viewModel.selectEvent(null) }
+            )
         }
     }
 }

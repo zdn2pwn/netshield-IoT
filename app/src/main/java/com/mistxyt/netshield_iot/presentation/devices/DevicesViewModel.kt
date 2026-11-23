@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mistxyt.netshield_iot.domain.model.Device
+import com.mistxyt.netshield_iot.domain.model.DnsEvent
 import com.mistxyt.netshield_iot.domain.repository.DeviceRepository
+import com.mistxyt.netshield_iot.domain.repository.DnsRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -39,13 +42,29 @@ data class DevicesUiState(
 }
 
 class DevicesViewModel(
-    private val deviceRepository: DeviceRepository
+    private val deviceRepository: DeviceRepository,
+    private val dnsRepository: DnsRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortOption = MutableStateFlow(DeviceSortOption.MOST_REQUESTS)
     private val _isRefreshing = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
+    private val _selectedDevice = MutableStateFlow<Device?>(null)
+
+    val selectedDevice: StateFlow<Device?> = _selectedDevice.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val selectedDeviceQueries: StateFlow<List<DnsEvent>> = _selectedDevice
+        .flatMapLatest { dev ->
+            if (dev == null) flowOf(emptyList())
+            else dnsRepository.getEventsByClientIp(dev.ipAddress, 100)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     val uiState: StateFlow<DevicesUiState> = combine(
         deviceRepository.getDevices(),
@@ -75,6 +94,14 @@ class DevicesViewModel(
         _sortOption.value = sort
     }
 
+    fun selectDevice(device: Device?) {
+        _selectedDevice.value = device
+    }
+
+    fun dismissDeviceDetails() {
+        _selectedDevice.value = null
+    }
+
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
@@ -87,10 +114,13 @@ class DevicesViewModel(
         }
     }
 
-    class Factory(private val deviceRepository: DeviceRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val deviceRepository: DeviceRepository,
+        private val dnsRepository: DnsRepository
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return DevicesViewModel(deviceRepository) as T
+            return DevicesViewModel(deviceRepository, dnsRepository) as T
         }
     }
 }

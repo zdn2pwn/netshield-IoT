@@ -1,5 +1,6 @@
 package com.mistxyt.netshield_iot.data.repository
 
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.data.local.NetShieldDatabase
 import com.mistxyt.netshield_iot.data.local.entity.DeviceEntity
 import com.mistxyt.netshield_iot.data.local.preferences.NetShieldPreferences
@@ -55,13 +56,12 @@ class DeviceRepositoryImpl(
                     DeviceEntity(
                         id = dto.id ?: dto.ipAddress ?: "dev-${(100..999).random()}",
                         ipAddress = dto.ipAddress ?: "192.168.1.1",
-                        macAddress = dto.macAddress,
+                        macAddress = dto.macAddress ?: "Active Client",
                         requestCount = dto.requestCount ?: 0,
                         blockedCount = dto.blockedCount ?: 0,
-                        lastActivity = dto.lastActivity ?: System.currentTimeMillis()
+                        lastActivity = DateTimeHelper.resolveValidEpochMs(dto.lastActivity)
                     )
                 }
-                deviceDao.clearAll()
                 deviceDao.insertDevices(entities)
                 Result.success(entities.map { it.toDomain() })
             } else {

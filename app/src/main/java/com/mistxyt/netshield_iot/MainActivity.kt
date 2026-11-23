@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
             BlocklistViewModel.Factory(app.blocklistRepository)
         }
         val devicesViewModel: DevicesViewModel by viewModels {
-            DevicesViewModel.Factory(app.deviceRepository)
+            DevicesViewModel.Factory(app.deviceRepository, app.dnsRepository)
         }
         val settingsViewModel: SettingsViewModel by viewModels {
             SettingsViewModel.Factory(app.settingsRepository, app.dnsRepository, app.deviceRepository)

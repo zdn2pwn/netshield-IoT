@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mistxyt.netshield_iot.R
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.BlockedDomain
 import com.mistxyt.netshield_iot.presentation.components.AddDomainDialog
 import com.mistxyt.netshield_iot.presentation.components.ConfirmDeleteDialog
@@ -291,7 +292,7 @@ fun BlockedDomainCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    val dateStr = SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(domain.createdAt))
+                    val dateStr = DateTimeHelper.formatWibShortDateTime(domain.createdAt)
                     Text(
                         text = "• $dateStr",
                         style = MaterialTheme.typography.labelSmall,

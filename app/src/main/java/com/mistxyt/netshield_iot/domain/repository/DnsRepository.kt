@@ -13,6 +13,7 @@ interface DnsRepository {
     fun getThreatIntel(): Flow<ThreatIntelSummary>
     fun getTrafficAnalytics(): Flow<List<TrafficPoint>>
     fun getRecentEvents(limit: Int = 20): Flow<List<DnsEvent>>
+    fun getEventsByClientIp(clientIp: String, limit: Int = 100): Flow<List<DnsEvent>>
     fun observeLiveTraffic(): Flow<DnsEvent>
     fun getWebSocketConnectionState(): Flow<Boolean>
     suspend fun refreshAll(): Result<Unit>

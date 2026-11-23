@@ -1,35 +1,54 @@
 package com.mistxyt.netshield_iot.core.util
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.mistxyt.netshield_iot.MainActivity
 import com.mistxyt.netshield_iot.R
+import java.util.concurrent.ConcurrentHashMap
 
 object NotificationHelper {
 
-    private const val CHANNEL_ID = "netshield_security_alerts"
+    private const val TAG = "NotificationHelper"
+    private const val CHANNEL_ID = "netshield_security_alerts_v3"
     private const val CHANNEL_NAME = "NetShield Security Alerts"
     private var isInitialized = false
+
+    // Mencegah spam suara berturut-turut untuk domain yang sama dalam 3 detik
+    private val lastAlertTimeMap = ConcurrentHashMap<String, Long>()
 
     fun init(context: Context) {
         if (isInitialized) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                .build()
+
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notifikasi saat domain berbahaya atau sensitif (Bokep, Judi Online, Malware) diblokir."
+                description = "Notifikasi suara instan saat situs terlarang (Bokep, Judi Online, Malware) diblokir."
                 enableVibration(true)
+                vibrationPattern = longArrayOf(0, 300, 150, 300)
+                setSound(soundUri, audioAttributes)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
+
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             manager?.createNotificationChannel(channel)
         }
@@ -40,8 +59,11 @@ object NotificationHelper {
         val lower = category.lowercase().trim()
         return lower.contains("adult") ||
                 lower.contains("bokep") ||
+                lower.contains("porn") ||
                 lower.contains("gambling") ||
                 lower.contains("judi") ||
+                lower.contains("slot") ||
+                lower.contains("gacor") ||
                 lower.contains("malware") ||
                 lower.contains("phishing") ||
                 lower.contains("cloudflare") ||
@@ -50,15 +72,33 @@ object NotificationHelper {
     }
 
     fun sendSecurityAlert(context: Context, domain: String, category: String, clientIp: String) {
+        val now = System.currentTimeMillis()
+        val lastTime = lastAlertTimeMap[domain] ?: 0L
+        if (now - lastTime < 3000) {
+            // Abaikan jika query domain yang sama datang berturut-turut dalam 3 detik
+            return
+        }
+        lastAlertTimeMap[domain] = now
+
         init(context)
 
-        // Verifikasi izin runtime POST_NOTIFICATIONS di Android 13+
+        // 1. Putar suara notifikasi secara langsung via RingtoneManager sebagai jaminan terdengar
+        try {
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val ringtone = RingtoneManager.getRingtone(context.applicationContext, soundUri)
+            ringtone?.play()
+        } catch (e: Exception) {
+            Log.e(TAG, "Gagal memutar ringtone langsung: ${e.message}")
+        }
+
+        // 2. Periksa izin notifikasi untuk menampilkan banner visual di Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     context,
                     android.Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                Log.w(TAG, "Izin POST_NOTIFICATIONS belum diberikan, notifikasi visual dilewati.")
                 return
             }
         }
@@ -73,26 +113,33 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_netshield_logo)
-            .setContentTitle("[BLOKIR] Ancaman Sensitif Terdeteksi!")
-            .setContentText("$domain ($category) dicegah dari $clientIp")
+            .setContentTitle("🚨 [DIBLOKIR] Akses Situs Terlarang!")
+            .setContentText("$domain ($category) dari $clientIp")
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("Akses ke situs $domain ($category) berhasil diblokir oleh NetShield IoT Sinkhole.\nPerangkat Klien: $clientIp")
+                    .bigText("Peringatan Keamanan NetShield:\nAkses ke situs terlarang $domain ($category) berhasil diblokir secara instan!\nPerangkat Klien: $clientIp")
             )
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setSound(soundUri)
+            .setVibrate(longArrayOf(0, 300, 150, 300))
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
 
         try {
             NotificationManagerCompat.from(context).notify(
-                (System.currentTimeMillis() % 100000).toInt(),
+                (now % 100000).toInt(),
                 notification
             )
-        } catch (_: SecurityException) {
-            // Permission rejected
+        } catch (e: Exception) {
+            Log.e(TAG, "Gagal memposting notifikasi: ${e.message}")
         }
     }
 }

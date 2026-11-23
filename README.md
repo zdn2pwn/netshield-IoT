@@ -54,11 +54,13 @@ flowchart TD
 
 ### 2. Live Traffic
 - **Real-Time Streaming**: Real-time feed powered by OkHttp WebSocket (or simulated generator in Demo Mode).
+- **Default Noise Suppression**: Defaults to displaying blocked threat domains only, reducing background telemetry noise with one-tap toggle to reveal all traffic.
 - **Search & Query Inspection**: Real-time filter by domain name or client IP address.
-- **Action Filters**: Instant toggling between **All**, **Allowed**, and **Blocked** queries.
+- **Interactive Query Detail Modal**: Tap any event row to inspect full query parameters, timestamp in Western Indonesia Time (WIB), engine source, and quick domain copying.
+- **Action Filters**: Instant toggling between **Blocked**, **All**, and **Allowed** queries.
 - **Category Filter Chips**: Fast horizontal filtering across *Malware*, *Phishing*, *Gambling*, *Adult*, *Ads & Trackers*, *Development*, etc.
+- **Instant Security Alerts**: High-priority heads-up notifications with audible sound and vibration alerts when malicious or sensitive domains are intercepted.
 - **Stream Controls**: Pause/Resume stream button and clear log action.
-- **Graceful Disconnection**: Clear indicators when connection drops with automatic exponential reconnects.
 
 ### 3. Blocklist Management
 - **Domain Directory**: Comprehensive management interface displaying all sinkholed domains, categories, and creation dates.
@@ -66,11 +68,12 @@ flowchart TD
 - **Delete Confirmation**: Guarded removal dialog to prevent accidental rule deletion.
 - **Hardware Synchronization**: One-click sync button pushing updated rules directly into the ESP32 engine.
 
-### 4. Devices
+### 4. Devices & Client Activity Drill-Down
 - **Observed Client List**: Identifies all network hosts generating DNS queries with their assigned IP and hardware MAC address.
+- **Interactive Device History Bottom Sheet**: Tap any device card to inspect comprehensive metrics and the complete chronological list of domains accessed by that specific host.
 - **Traffic Metrics**: Displays query count, blocked query count, and block ratio percentage per device.
 - **Sorting Options**: Sort devices by *Most Requests*, *Most Blocked*, *Recent Activity*, or *IP Address*.
-- **Honest Telemetry Notice**: Explicitly clarifies that DNS logs identify network requesting IPs rather than verified owner identities.
+- **Standardized WIB Timestamps**: Accurate local timestamps formatted in Western Indonesia Time (WIB, UTC+7).
 
 ### 5. Settings
 - **Dual Operating Modes**:
@@ -83,6 +86,14 @@ flowchart TD
 - **Local Persistence & Cache Management**: One-click cache cleanup for local Room databases.
 
 ---
+
+## ESP32 Firmware Implementation
+
+The hardware layer runs on an ESP32-C3 microcontroller located at `firmware/esp32_c3_netshield/esp32_c3_netshield.ino`. Key capabilities include:
+- **Upstream DNS Filtering**: Uses Cloudflare for Families (`1.1.1.3`) for upstream DNS resolution, which automatically blocks malware, phishing, and adult content at the resolver level.
+- **Aggressive Telemetry Filtering**: Drops internal background telemetry and DoH probes (Apple, Google, Microsoft OS services) from the live log to focus on user website queries.
+- **Non-Blocking Network Architecture**: Runs WebSocket and REST loops concurrently inside UDP DNS wait loops to prevent client timeouts.
+- **Local Rule Cache**: In-memory hash and prefix matching for instant zero-latency domain interception.
 
 ## ESP32 Firmware API Specification
 

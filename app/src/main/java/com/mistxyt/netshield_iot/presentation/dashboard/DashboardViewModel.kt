@@ -63,6 +63,18 @@ class DashboardViewModel(
         initialValue = DashboardUiState()
     )
 
+    init {
+        // Pembaruan data otomatis di background setiap 3.5 detik tanpa perlu klik tombol refresh
+        viewModelScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(3500)
+                try {
+                    dnsRepository.refreshAll()
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true

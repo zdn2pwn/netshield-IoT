@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mistxyt.netshield_iot.R
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.SystemStatus
 import com.mistxyt.netshield_iot.ui.theme.*
 import java.text.SimpleDateFormat
@@ -153,7 +154,7 @@ fun SystemStatusCard(
                     isSuccess = null
                 )
                 val syncFormatted = if (status.lastSyncTimestamp > 0) {
-                    SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(status.lastSyncTimestamp))
+                    DateTimeHelper.formatWibTime(status.lastSyncTimestamp)
                 } else "--:--"
                 StatusItem(
                     label = stringResource(R.string.dashboard_last_sync),

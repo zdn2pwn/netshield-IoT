@@ -1,6 +1,7 @@
 package com.mistxyt.netshield_iot.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.DnsAction
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
 import java.text.SimpleDateFormat
@@ -20,10 +22,13 @@ import java.util.Locale
 @Composable
 fun DnsEventRow(
     event: DnsEvent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -107,7 +112,7 @@ fun DnsEventRow(
             ) {
                 ActionBadge(isBlocked = event.action == DnsAction.BLOCK)
 
-                val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(event.timestamp))
+                val timeStr = DateTimeHelper.formatWibTime(event.timestamp)
                 Text(
                     text = timeStr,
                     style = MaterialTheme.typography.labelSmall,

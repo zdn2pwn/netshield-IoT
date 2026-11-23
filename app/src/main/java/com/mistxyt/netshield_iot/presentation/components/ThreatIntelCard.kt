@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mistxyt.netshield_iot.R
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.ThreatIntelSummary
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -123,7 +124,7 @@ fun ThreatIntelCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    val dateFormatted = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(intel.lastFeedUpdate))
+                    val dateFormatted = DateTimeHelper.formatWibShortDateTime(intel.lastFeedUpdate)
                     Text(
                         text = dateFormatted,
                         style = MaterialTheme.typography.bodyMedium,

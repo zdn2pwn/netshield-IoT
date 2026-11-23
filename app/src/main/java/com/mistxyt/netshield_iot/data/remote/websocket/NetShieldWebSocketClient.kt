@@ -1,6 +1,7 @@
 package com.mistxyt.netshield_iot.data.remote.websocket
 
 import com.google.gson.Gson
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.data.remote.dto.DnsEventDto
 import com.mistxyt.netshield_iot.domain.model.DnsAction
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
@@ -101,7 +102,7 @@ class NetShieldWebSocketClient(
             if (dto != null && !dto.domain.isNullOrBlank()) {
                 val event = DnsEvent(
                     id = dto.id ?: "evt-${System.currentTimeMillis()}-${(100..999).random()}",
-                    timestamp = dto.timestamp ?: System.currentTimeMillis(),
+                    timestamp = DateTimeHelper.resolveValidEpochMs(dto.timestamp),
                     clientIp = dto.clientIp ?: "192.168.1.1",
                     domain = dto.domain,
                     queryType = dto.queryType ?: "A",

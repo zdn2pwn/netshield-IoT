@@ -1,10 +1,12 @@
 package com.mistxyt.netshield_iot.data.repository
 
 import android.content.Context
+import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.core.util.DomainFilterHelper
 import com.mistxyt.netshield_iot.core.util.NotificationHelper
 import com.mistxyt.netshield_iot.data.demo.DemoDataProvider
 import com.mistxyt.netshield_iot.data.local.NetShieldDatabase
+import com.mistxyt.netshield_iot.data.local.entity.DeviceEntity
 import com.mistxyt.netshield_iot.data.local.entity.DnsEventEntity
 import com.mistxyt.netshield_iot.data.local.preferences.NetShieldPreferences
 import com.mistxyt.netshield_iot.data.remote.NetworkModule
@@ -28,6 +30,7 @@ class DnsRepositoryImpl(
 ) : DnsRepository {
 
     private val dnsEventDao = database.dnsEventDao()
+    private val deviceDao = database.deviceDao()
 
     private val _liveStats = MutableStateFlow(DashboardStats())
     private val _systemStatus = MutableStateFlow(
@@ -71,7 +74,9 @@ class DnsRepositoryImpl(
 
         // Listen to incoming live WebSocket events and save to local DB safely on IO dispatcher
         scope.launch(Dispatchers.IO) {
-            webSocketClient.incomingEvents.collect { event ->
+            webSocketClient.incomingEvents.collect { rawEvent ->
+                val validTimestamp = DateTimeHelper.resolveValidEpochMs(rawEvent.timestamp)
+                val event = rawEvent.copy(timestamp = validTimestamp)
                 val isBlocked = event.action == DnsAction.BLOCK
 
                 // 1. Kirim notifikasi sistem jika domain berkategori sensitif diblokir
@@ -90,6 +95,30 @@ class DnsRepositoryImpl(
                 }
 
                 dnsEventDao.insertEvent(DnsEventEntity.fromDomain(event))
+
+                // 3. Catat / perbarui aktivitas perangkat klien secara langsung
+                val existingDevice = deviceDao.getDeviceByIp(event.clientIp)
+                if (existingDevice != null) {
+                    deviceDao.insertOrUpdateDevice(
+                        existingDevice.copy(
+                            requestCount = existingDevice.requestCount + 1,
+                            blockedCount = if (isBlocked) existingDevice.blockedCount + 1 else existingDevice.blockedCount,
+                            lastActivity = validTimestamp
+                        )
+                    )
+                } else {
+                    deviceDao.insertOrUpdateDevice(
+                        DeviceEntity(
+                            id = "dev-${event.clientIp.replace('.', '-')}",
+                            ipAddress = event.clientIp,
+                            macAddress = "Active Client",
+                            requestCount = 1,
+                            blockedCount = if (isBlocked) 1 else 0,
+                            lastActivity = validTimestamp
+                        )
+                    )
+                }
+
                 // Increment dynamic stats
                 val cur = _liveStats.value
                 _liveStats.value = cur.copy(
@@ -126,6 +155,12 @@ class DnsRepositoryImpl(
 
     override fun getRecentEvents(limit: Int): Flow<List<DnsEvent>> {
         return dnsEventDao.getRecentEvents(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override fun getEventsByClientIp(clientIp: String, limit: Int): Flow<List<DnsEvent>> {
+        return dnsEventDao.getEventsByClientIp(clientIp, limit).map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -210,14 +245,24 @@ class DnsRepositoryImpl(
             val recentResp = api.getRecentTraffic(30)
             if (recentResp.isSuccessful && recentResp.body() != null) {
                 val entities = recentResp.body()!!.map { evtDto ->
+                    val domain = evtDto.domain ?: ""
+                    val action = evtDto.action ?: "ALLOW"
+                    val category = evtDto.category ?: "General"
+                    val clientIp = evtDto.clientIp ?: "192.168.1.1"
+
+                    // Cadangan notifikasi jika event terlewat di WebSocket
+                    if (action == "BLOCK" && NotificationHelper.isSensitiveCategory(category)) {
+                        NotificationHelper.sendSecurityAlert(context, domain, category, clientIp)
+                    }
+
                     DnsEventEntity(
                         id = evtDto.id ?: "evt-${System.currentTimeMillis()}-${(100..999).random()}",
-                        timestamp = evtDto.timestamp ?: System.currentTimeMillis(),
-                        clientIp = evtDto.clientIp ?: "192.168.1.1",
-                        domain = evtDto.domain ?: "",
+                        timestamp = DateTimeHelper.resolveValidEpochMs(evtDto.timestamp),
+                        clientIp = clientIp,
+                        domain = domain,
                         queryType = evtDto.queryType ?: "A",
-                        action = evtDto.action ?: "ALLOW",
-                        category = evtDto.category ?: "General",
+                        action = action,
+                        category = category,
                         source = evtDto.source ?: "ESP32"
                     )
                 }.filter { 
