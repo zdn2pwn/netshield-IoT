@@ -17,8 +17,8 @@
 const char* WIFI_SSID     = "New york";
 const char* WIFI_PASSWORD = "rongawi123";
 
-// Upstream Public DNS (Cloudflare)
-IPAddress upstreamDns(1, 1, 1, 1);
+// Upstream Public DNS (Cloudflare 1.1.1.3 for Families - Automatic Malware & Adult Block)
+IPAddress upstreamDns(1, 1, 1, 3);
 const uint16_t DNS_PORT = 53;
 const int LED_PIN = 8; // Onboard LED pada ESP32-C3 SuperMini (Active LOW)
 
@@ -293,7 +293,9 @@ void sendSinkholeResponse(IPAddress clientIp, uint16_t clientPort, uint8_t* quer
   sendDnsAnswer(clientIp, clientPort, queryBuffer, queryLength, IPAddress(0, 0, 0, 0));
 }
 
-void forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* queryBuffer, int queryLength) {
+// Meneruskan DNS ke Cloudflare 1.1.1.3 (Security & Family Filter)
+// Mengembalikan: 1 = Diblokir oleh Cloudflare/TrustPositif, 0 = Diizinkan/Sukses, -1 = Fallback
+int forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* queryBuffer, int queryLength) {
   WiFiUDP upstreamUdp;
   upstreamUdp.begin(0);
   upstreamUdp.beginPacket(upstreamDns, 53);
@@ -301,13 +303,39 @@ void forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* quer
   upstreamUdp.endPacket();
 
   bool answered = false;
+  bool isBlocked = false;
   unsigned long startWait = millis();
-  while (millis() - startWait < 80) {
+  while (millis() - startWait < 90) {
     int respSize = upstreamUdp.parsePacket();
     if (respSize > 0) {
       uint8_t respBuffer[512];
       int bytesRead = upstreamUdp.read(respBuffer, sizeof(respBuffer));
       if (bytesRead > 0) {
+        // Cek tanda blokir dari Kominfo TrustPositif (aduankonten / internetpositif)
+        String respStr = "";
+        for (int i = 0; i < bytesRead && i < 256; i++) {
+          char c = (char)respBuffer[i];
+          if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-') {
+            respStr += c;
+          }
+        }
+        respStr.toLowerCase();
+        if (respStr.indexOf("internetpositif") >= 0 || respStr.indexOf("aduankonten") >= 0) {
+          isBlocked = true;
+        }
+
+        // Cek apakah Cloudflare 1.1.1.3 mengembalikan alamat A-Record 0.0.0.0 (tanda konten diblokir)
+        if (!isBlocked && bytesRead >= 16) {
+          for (int i = 12; i < bytesRead - 4; i++) {
+            if (respBuffer[i] == 0x00 && respBuffer[i+1] == 0x04 &&
+                respBuffer[i+2] == 0 && respBuffer[i+3] == 0 &&
+                respBuffer[i+4] == 0 && respBuffer[i+5] == 0) {
+              isBlocked = true;
+              break;
+            }
+          }
+        }
+
         udpDns.beginPacket(clientIp, clientPort);
         udpDns.write(respBuffer, bytesRead);
         udpDns.endPacket();
@@ -319,15 +347,16 @@ void forwardToUpstreamDns(IPAddress clientIp, uint16_t clientPort, uint8_t* quer
   }
   upstreamUdp.stop();
 
-  // Fallback jika router tanpa internet/WAN: kembalikan IP gateway router
-  // sehingga DNS query klien tidak time-out dan event ALLOW tetap tercatat instan!
   if (!answered) {
     IPAddress fallbackIp = WiFi.gatewayIP();
     if (fallbackIp == IPAddress(0, 0, 0, 0)) {
       fallbackIp = WiFi.localIP();
     }
     sendDnsAnswer(clientIp, clientPort, queryBuffer, queryLength, fallbackIp);
+    return -1;
   }
+
+  return isBlocked ? 1 : 0;
 }
 
 void handleDnsPacket() {
@@ -347,17 +376,17 @@ void handleDnsPacket() {
   totalDnsRequests++;
   String clientIpStr = clientIp.toString();
 
-  // 1. Cek apakah masuk blocklist eksplisit
+  // 1. Cek apakah masuk blocklist lokal atau pola heuristik cepat
   int matchIndex = findBlockRule(domain);
   String blockedCategory = "";
   if (matchIndex != -1) {
     blockedCategory = blocklist[matchIndex].category;
   } else {
-    // 2. Cek apakah cocok dengan deteksi heuristik sensitif (Bokep, Judol, Malware, Phishing)
     blockedCategory = classifySensitiveDomain(domain);
   }
 
   if (blockedCategory.length() > 0) {
+    // Terblokir oleh filter lokal (instant 0ms)
     blockedDnsRequests++;
     sendSinkholeResponse(clientIp, clientPort, packetBuffer, len);
     trackDevice(clientIpStr, true);
@@ -365,15 +394,27 @@ void handleDnsPacket() {
     broadcastWebSocketEvent(clientIpStr, domain, "BLOCK", blockedCategory);
     Serial.printf("[BLOCKED: %s] %s from %s\n", blockedCategory.c_str(), domain.c_str(), clientIpStr.c_str());
   } else {
-    allowedDnsRequests++;
-    forwardToUpstreamDns(clientIp, clientPort, packetBuffer, len);
-    trackDevice(clientIpStr, false);
+    // 2. Teruskan ke Upstream Cloudflare 1.1.1.3 Family Filter
+    int upstreamResult = forwardToUpstreamDns(clientIp, clientPort, packetBuffer, len);
 
-    // Filter domain telemetry / DoH / noise agar tidak mengotori feed Android
-    if (!isNoisyDomain(domain)) {
-      recordRecentEvent(clientIpStr, domain, "ALLOW", "General");
-      broadcastWebSocketEvent(clientIpStr, domain, "ALLOW", "General");
-      Serial.printf("[ALLOWED] %s from %s\n", domain.c_str(), clientIpStr.c_str());
+    if (upstreamResult == 1) {
+      // Terblokir secara otomatis oleh Cloudflare 1.1.1.3 / Kominfo TrustPositif
+      blockedDnsRequests++;
+      trackDevice(clientIpStr, true);
+      String autoCat = "Cloudflare Family Shield";
+      recordRecentEvent(clientIpStr, domain, "BLOCK", autoCat);
+      broadcastWebSocketEvent(clientIpStr, domain, "BLOCK", autoCat);
+      Serial.printf("[AUTO-BLOCKED: CLOUDFLARE] %s from %s\n", domain.c_str(), clientIpStr.c_str());
+    } else {
+      allowedDnsRequests++;
+      trackDevice(clientIpStr, false);
+
+      // Filter telemetri / DoH / noise agar tidak mengotori feed Android
+      if (!isNoisyDomain(domain)) {
+        recordRecentEvent(clientIpStr, domain, "ALLOW", "General");
+        broadcastWebSocketEvent(clientIpStr, domain, "ALLOW", "General");
+        Serial.printf("[ALLOWED] %s from %s\n", domain.c_str(), clientIpStr.c_str());
+      }
     }
   }
 }

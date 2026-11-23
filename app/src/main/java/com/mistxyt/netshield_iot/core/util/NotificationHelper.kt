@@ -43,7 +43,10 @@ object NotificationHelper {
                 lower.contains("gambling") ||
                 lower.contains("judi") ||
                 lower.contains("malware") ||
-                lower.contains("phishing")
+                lower.contains("phishing") ||
+                lower.contains("cloudflare") ||
+                lower.contains("shield") ||
+                lower.contains("threat")
     }
 
     fun sendSecurityAlert(context: Context, domain: String, category: String, clientIp: String) {
