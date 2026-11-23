@@ -46,22 +46,6 @@ fun DashboardScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        if (uiState.isRefreshing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Outlined.Refresh,
-                                contentDescription = stringResource(R.string.action_refresh),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )

@@ -23,10 +23,13 @@ object NotificationHelper {
     private const val TAG = "NotificationHelper"
     private const val CHANNEL_ID = "netshield_security_alerts_v3"
     private const val CHANNEL_NAME = "NetShield Security Alerts"
+    private const val NOTIFICATION_ID_SECURITY_ALERT = 1001
     private var isInitialized = false
 
-    // Mencegah spam suara berturut-turut untuk domain yang sama dalam 3 detik
+    // Anti-spam deduplikasi per domain utama (apex) dalam 45 detik
     private val lastAlertTimeMap = ConcurrentHashMap<String, Long>()
+    // Throttle global: jeda minimal 8 detik antar notifikasi suara apa pun
+    private var lastGlobalAlertTime: Long = 0L
 
     fun init(context: Context) {
         if (isInitialized) return
@@ -42,7 +45,7 @@ object NotificationHelper {
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notifikasi suara instan saat situs terlarang (Bokep, Judi Online, Malware) diblokir."
+                description = "Notifikasi suara instan saat situs terlarang (Pornografi, Judi Online, Malware) diblokir."
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 300, 150, 300)
                 setSound(soundUri, audioAttributes)
@@ -71,14 +74,24 @@ object NotificationHelper {
                 lower.contains("threat")
     }
 
+    @Synchronized
     fun sendSecurityAlert(context: Context, domain: String, category: String, clientIp: String) {
         val now = System.currentTimeMillis()
-        val lastTime = lastAlertTimeMap[domain] ?: 0L
-        if (now - lastTime < 3000) {
-            // Abaikan jika query domain yang sama datang berturut-turut dalam 3 detik
+        val mainDomain = DomainFilterHelper.extractMainDomain(domain).lowercase().trim()
+
+        // 1. Throttle global: cegah suara ganda dalam interval 8 detik
+        if (now - lastGlobalAlertTime < 8000L) {
             return
         }
-        lastAlertTimeMap[domain] = now
+
+        // 2. Cooldown per domain: cegah spam berulang untuk situs yang sama dalam 45 detik
+        val lastTime = lastAlertTimeMap[mainDomain] ?: 0L
+        if (now - lastTime < 45000L) {
+            return
+        }
+
+        lastAlertTimeMap[mainDomain] = now
+        lastGlobalAlertTime = now
 
         init(context)
 
@@ -118,10 +131,10 @@ object NotificationHelper {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_netshield_logo)
             .setContentTitle("🚨 [DIBLOKIR] Akses Situs Terlarang!")
-            .setContentText("$domain ($category) dari $clientIp")
+            .setContentText("$mainDomain ($category) dari $clientIp")
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("Peringatan Keamanan NetShield:\nAkses ke situs terlarang $domain ($category) berhasil diblokir secara instan!\nPerangkat Klien: $clientIp")
+                    .bigText("Peringatan Keamanan NetShield:\nAkses ke situs terlarang $mainDomain ($category) berhasil diblokir secara instan!\nPerangkat Klien: $clientIp")
             )
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -135,7 +148,7 @@ object NotificationHelper {
 
         try {
             NotificationManagerCompat.from(context).notify(
-                (now % 100000).toInt(),
+                NOTIFICATION_ID_SECURITY_ALERT,
                 notification
             )
         } catch (e: Exception) {

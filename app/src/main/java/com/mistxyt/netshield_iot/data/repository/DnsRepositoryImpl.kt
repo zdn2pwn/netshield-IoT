@@ -250,11 +250,6 @@ class DnsRepositoryImpl(
                     val category = evtDto.category ?: "General"
                     val clientIp = evtDto.clientIp ?: "192.168.1.1"
 
-                    // Cadangan notifikasi jika event terlewat di WebSocket
-                    if (action == "BLOCK" && NotificationHelper.isSensitiveCategory(category)) {
-                        NotificationHelper.sendSecurityAlert(context, domain, category, clientIp)
-                    }
-
                     DnsEventEntity(
                         id = evtDto.id ?: "evt-${System.currentTimeMillis()}-${(100..999).random()}",
                         timestamp = DateTimeHelper.resolveValidEpochMs(evtDto.timestamp),

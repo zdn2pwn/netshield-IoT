@@ -83,7 +83,7 @@ unsigned long lastSyncTime = 0;
 
 void addDefaultRules() {
   blocklistCount = 0;
-  // Adult Content / Bokep
+  // Adult Content / Pornografi
   blocklist[blocklistCount++] = {"blk-1", "pornhub.com", "Adult Content", "NetShield Defense", millis()};
   blocklist[blocklistCount++] = {"blk-2", "xvideos.com", "Adult Content", "NetShield Defense", millis()};
   blocklist[blocklistCount++] = {"blk-3", "xnxx.com", "Adult Content", "NetShield Defense", millis()};
@@ -123,7 +123,7 @@ void addDefaultRules() {
 }
 
 String classifySensitiveDomain(const String& d) {
-  // Adult / Bokep pattern detection
+  // Adult / Pornografi pattern detection
   if (d.indexOf("bokep") >= 0 || d.indexOf("porn") >= 0 || d.indexOf("xxx") >= 0 ||
       d.indexOf("xvideos") >= 0 || d.indexOf("xnxx") >= 0 || d.indexOf("redtube") >= 0 ||
       d.indexOf("xhamster") >= 0 || d.indexOf("hentai") >= 0 || d.indexOf("youporn") >= 0) {
