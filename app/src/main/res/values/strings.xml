@@ -1,0 +1,165 @@
+<resources>
+    <!-- App Branding -->
+    <string name="app_name">NetShield IoT</string>
+    <string name="tagline">Network Visibility. Smarter Protection.</string>
+
+    <!-- Navigation Destinations -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_traffic">Live Traffic</string>
+    <string name="nav_blocklist">Blocklist</string>
+    <string name="nav_devices">Devices</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- General Status & Actions -->
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_active">Active</string>
+    <string name="status_inactive">Inactive</string>
+    <string name="action_allow">ALLOW</string>
+    <string name="action_block">BLOCK</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_close">Close</string>
+    <string name="action_view_all">View All</string>
+
+    <!-- Demo Banner -->
+    <string name="demo_badge">DEMO MODE</string>
+    <string name="demo_banner_title">DEMO MODE ACTIVE</string>
+    <string name="demo_banner_subtitle">Displaying realistic local sample data. No ESP32 hardware required.</string>
+    <string name="live_badge">LIVE ESP32</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_greeting">Network Security Overview</string>
+    <string name="dashboard_system_status">System Status</string>
+    <string name="dashboard_esp32_status">ESP32 Status</string>
+    <string name="dashboard_esp32_ip">ESP32 IP</string>
+    <string name="dashboard_dns_engine">DNS Engine</string>
+    <string name="dashboard_ws_status">WebSocket</string>
+    <string name="dashboard_last_sync">Last Sync</string>
+    <string name="dashboard_uptime">Uptime</string>
+    <string name="stat_total_requests">Total Requests</string>
+    <string name="stat_blocked_requests">Blocked Requests</string>
+    <string name="stat_allowed_requests">Allowed Requests</string>
+    <string name="stat_unique_devices">Unique Devices</string>
+    <string name="traffic_analytics_title">Traffic Analytics</string>
+    <string name="traffic_analytics_subtitle">DNS requests over the last 24 hours</string>
+    <string name="traffic_chart_empty">No traffic history available yet</string>
+    <string name="recent_activity_title">Recent DNS Activity</string>
+    <string name="recent_activity_empty">No recent DNS activity recorded</string>
+    <string name="threat_intel_title">Threat Intelligence</string>
+    <string name="threat_intel_sources">Active Threat Sources</string>
+    <string name="threat_intel_blocked_domains">Total Blocked Domains</string>
+    <string name="threat_intel_last_update">Last Feed Update</string>
+    <string name="threat_intel_engine_note">Dual-layer heuristics &amp; blocklist filtering</string>
+
+    <!-- Live Traffic Screen -->
+    <string name="traffic_screen_title">Live DNS Traffic</string>
+    <string name="traffic_search_hint">Search domain or client IP…</string>
+    <string name="traffic_filter_all">All</string>
+    <string name="traffic_filter_allowed">Allowed</string>
+    <string name="traffic_filter_blocked">Blocked</string>
+    <string name="traffic_pause">Pause Stream</string>
+    <string name="traffic_resume">Resume Stream</string>
+    <string name="traffic_paused_label">Stream Paused</string>
+    <string name="traffic_live_label">Live Stream Active</string>
+    <string name="traffic_ws_connecting">Connecting to WebSocket…</string>
+    <string name="traffic_ws_reconnecting">Connection lost. Reconnecting…</string>
+    <string name="traffic_ws_disconnected">WebSocket disconnected</string>
+    <string name="traffic_empty_state">No DNS events match the current filter</string>
+    <string name="traffic_events_count">%1$d events observed</string>
+
+    <!-- Blocklist Screen -->
+    <string name="blocklist_screen_title">Domain Blocklist</string>
+    <string name="blocklist_search_hint">Search blocked domains…</string>
+    <string name="blocklist_add_domain">Add Domain</string>
+    <string name="blocklist_domain_label">Domain Name</string>
+    <string name="blocklist_domain_hint">example.com or ads.tracker.org</string>
+    <string name="blocklist_domain_error">Please enter a valid domain (e.g. domain.com)</string>
+    <string name="blocklist_category_label">Category</string>
+    <string name="blocklist_source_label">Source</string>
+    <string name="blocklist_sync_action">Sync with ESP32</string>
+    <string name="blocklist_syncing">Syncing rules to ESP32…</string>
+    <string name="blocklist_sync_success">Blocklist synchronized successfully</string>
+    <string name="blocklist_sync_failed">ESP32 blocklist sync failed</string>
+    <string name="blocklist_empty">No blocked domains in list</string>
+    <string name="blocklist_delete_dialog_title">Remove Blocked Domain</string>
+    <string name="blocklist_delete_dialog_message">Are you sure you want to remove %1$s from the blocklist? DNS queries to this domain will no longer be intercepted.</string>
+    <string name="blocklist_add_success">Domain added to blocklist</string>
+    <string name="blocklist_remove_success">Domain removed from blocklist</string>
+
+    <!-- Categories -->
+    <string name="category_all">All Categories</string>
+    <string name="category_gambling">Gambling</string>
+    <string name="category_malware">Malware</string>
+    <string name="category_phishing">Phishing</string>
+    <string name="category_adult">Adult Content</string>
+    <string name="category_custom">Custom</string>
+    <string name="category_ads">Ads &amp; Trackers</string>
+    <string name="source_manual">Manual Entry</string>
+    <string name="source_feed">Threat Intel Feed</string>
+    <string name="source_heuristic">Local Heuristic</string>
+
+    <!-- Devices Screen -->
+    <string name="devices_screen_title">Observed Devices</string>
+    <string name="devices_search_hint">Search device IP or MAC…</string>
+    <string name="devices_sort_label">Sort By</string>
+    <string name="devices_sort_requests">Most Requests</string>
+    <string name="devices_sort_blocked">Most Blocked</string>
+    <string name="devices_sort_recent">Recent Activity</string>
+    <string name="devices_sort_ip">IP Address</string>
+    <string name="devices_empty">No client devices observed yet</string>
+    <string name="devices_ip_label">Client IP</string>
+    <string name="devices_mac_label">MAC / ID</string>
+    <string name="devices_total_queries">Total Queries</string>
+    <string name="devices_blocked_queries">Blocked Queries</string>
+    <string name="devices_last_seen">Last Active</string>
+    <string name="devices_disclaimer">Notice: DNS queries reveal client IP addresses. Hardware identity and hostnames may vary depending on DHCP and network topology.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Settings</string>
+    <string name="settings_section_mode">Operating Mode</string>
+    <string name="settings_demo_mode">Demo Mode (Simulated Data)</string>
+    <string name="settings_demo_mode_desc">Use local realistic DNS activity and mock hardware stats for demonstration without an ESP32.</string>
+    <string name="settings_live_mode">Live Mode (ESP32 Network)</string>
+    <string name="settings_live_mode_desc">Connect to a physical ESP32 DNS Filtering Engine over the local Wi-Fi or LAN.</string>
+    
+    <string name="settings_section_hardware">ESP32 Hardware Connection</string>
+    <string name="settings_esp32_ip">ESP32 IP Address</string>
+    <string name="settings_esp32_ip_hint">192.168.1.10</string>
+    <string name="settings_esp32_http_port">REST API Port</string>
+    <string name="settings_esp32_ws_port">WebSocket Port</string>
+    <string name="settings_test_connection">Test Connection</string>
+    <string name="settings_testing">Testing connection to ESP32…</string>
+    <string name="settings_test_success">Connected to ESP32 successfully! Engine is responding.</string>
+    <string name="settings_test_failed">Unable to reach ESP32 at specified address. Ensure your device is on the same Wi-Fi network.</string>
+    
+    <string name="settings_section_appearance">Appearance &amp; Display</string>
+    <string name="settings_theme">Application Theme</string>
+    <string name="settings_theme_system">Follow System</string>
+    <string name="settings_theme_light">Light Theme</string>
+    <string name="settings_theme_dark">Dark Theme</string>
+    
+    <string name="settings_section_language">Language / Bahasa</string>
+    <string name="settings_lang_system">System Default</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_lang_id">Bahasa Indonesia</string>
+    
+    <string name="settings_section_storage">Data &amp; Persistence</string>
+    <string name="settings_clear_cache">Clear Cached DNS Logs</string>
+    <string name="settings_clear_cache_desc">Deletes locally stored traffic history and cached device records.</string>
+    <string name="settings_cache_cleared">Local cache cleared successfully.</string>
+    
+    <string name="settings_section_about">About NetShield IoT</string>
+    <string name="settings_version_label">Version</string>
+    <string name="settings_version_value">1.0.0 (Production Release)</string>
+    <string name="settings_architecture_label">Architecture</string>
+    <string name="settings_architecture_value">Jetpack Compose + MVVM + Room + Retrofit</string>
+    <string name="settings_about_desc">NetShield IoT provides a unified administrative interface for ESP32-based embedded DNS sinkhole firewalls. Built with enterprise cyber-defense aesthetics and robust offline caching.</string>
+    <string name="settings_security_note">Security Notice: REST and WebSocket endpoints operate over cleartext LAN protocols suitable for private home or lab testbeds.</string>
+</resources>

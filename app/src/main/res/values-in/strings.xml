@@ -1,0 +1,165 @@
+<resources>
+    <!-- App Branding -->
+    <string name="app_name">NetShield IoT</string>
+    <string name="tagline">Visibilitas Jaringan. Perlindungan Lebih Cerdas.</string>
+
+    <!-- Navigation Destinations -->
+    <string name="nav_dashboard">Dasbor</string>
+    <string name="nav_traffic">Lalu Lintas</string>
+    <string name="nav_blocklist">Daftar Blokir</string>
+    <string name="nav_devices">Perangkat</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- General Status & Actions -->
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_connected">Terhubung</string>
+    <string name="status_disconnected">Terputus</string>
+    <string name="status_active">Aktif</string>
+    <string name="status_inactive">Nonaktif</string>
+    <string name="action_allow">IZINKAN</string>
+    <string name="action_block">BLOKIR</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_cancel">Batal</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_remove">Hapus</string>
+    <string name="action_refresh">Segarkan</string>
+    <string name="action_retry">Coba Lagi</string>
+    <string name="action_close">Tutup</string>
+    <string name="action_view_all">Lihat Semua</string>
+
+    <!-- Demo Banner -->
+    <string name="demo_badge">MODE DEMO</string>
+    <string name="demo_banner_title">MODE DEMO AKTIF</string>
+    <string name="demo_banner_subtitle">Menampilkan data sampel simulasi lokal yang realistis tanpa perangkat keras ESP32 fisik.</string>
+    <string name="live_badge">ESP32 LANGSUNG</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_greeting">Ringkasan Keamanan Jaringan</string>
+    <string name="dashboard_system_status">Status Sistem</string>
+    <string name="dashboard_esp32_status">Status ESP32</string>
+    <string name="dashboard_esp32_ip">IP ESP32</string>
+    <string name="dashboard_dns_engine">Mesin DNS</string>
+    <string name="dashboard_ws_status">WebSocket</string>
+    <string name="dashboard_last_sync">Sinkronisasi Terakhir</string>
+    <string name="dashboard_uptime">Waktu Operasional</string>
+    <string name="stat_total_requests">Total Permintaan</string>
+    <string name="stat_blocked_requests">Permintaan Diblokir</string>
+    <string name="stat_allowed_requests">Permintaan Diizinkan</string>
+    <string name="stat_unique_devices">Perangkat Unik</string>
+    <string name="traffic_analytics_title">Analisis Lalu Lintas</string>
+    <string name="traffic_analytics_subtitle">Aktivitas permintaan DNS selama 24 jam terakhir</string>
+    <string name="traffic_chart_empty">Data riwayat lalu lintas belum tersedia</string>
+    <string name="recent_activity_title">Aktivitas DNS Terkini</string>
+    <string name="recent_activity_empty">Belum ada aktivitas DNS yang tercatat</string>
+    <string name="threat_intel_title">Intelijen Ancaman</string>
+    <string name="threat_intel_sources">Sumber Ancaman Aktif</string>
+    <string name="threat_intel_blocked_domains">Total Domain Diblokir</string>
+    <string name="threat_intel_last_update">Pembaruan Feed Terakhir</string>
+    <string name="threat_intel_engine_note">Penyaringan heuristik ganda &amp; daftar blokir terpadu</string>
+
+    <!-- Live Traffic Screen -->
+    <string name="traffic_screen_title">Lalu Lintas DNS Langsung</string>
+    <string name="traffic_search_hint">Cari domain atau IP klien…</string>
+    <string name="traffic_filter_all">Semua</string>
+    <string name="traffic_filter_allowed">Diizinkan</string>
+    <string name="traffic_filter_blocked">Diblokir</string>
+    <string name="traffic_pause">Jeda Aliran</string>
+    <string name="traffic_resume">Lanjutkan Aliran</string>
+    <string name="traffic_paused_label">Aliran Dijeda</string>
+    <string name="traffic_live_label">Aliran Langsung Aktif</string>
+    <string name="traffic_ws_connecting">Menghubungkan ke WebSocket…</string>
+    <string name="traffic_ws_reconnecting">Koneksi terputus. Mencoba menghubungkan kembali…</string>
+    <string name="traffic_ws_disconnected">WebSocket terputus</string>
+    <string name="traffic_empty_state">Tidak ada aktivitas DNS yang sesuai dengan filter</string>
+    <string name="traffic_events_count">%1$d peristiwa terpantau</string>
+
+    <!-- Blocklist Screen -->
+    <string name="blocklist_screen_title">Daftar Blokir Domain</string>
+    <string name="blocklist_search_hint">Cari domain yang diblokir…</string>
+    <string name="blocklist_add_domain">Tambah Domain</string>
+    <string name="blocklist_domain_label">Nama Domain</string>
+    <string name="blocklist_domain_hint">contoh.com atau ads.pelacak.org</string>
+    <string name="blocklist_domain_error">Masukkan nama domain yang valid (misalnya: domain.com)</string>
+    <string name="blocklist_category_label">Kategori</string>
+    <string name="blocklist_source_label">Sumber</string>
+    <string name="blocklist_sync_action">Sinkronkan ke ESP32</string>
+    <string name="blocklist_syncing">Menyinkronkan aturan ke ESP32…</string>
+    <string name="blocklist_sync_success">Daftar blokir berhasil disinkronkan</string>
+    <string name="blocklist_sync_failed">Sinkronisasi ke ESP32 gagal</string>
+    <string name="blocklist_empty">Daftar blokir masih kosong</string>
+    <string name="blocklist_delete_dialog_title">Hapus Domain Diblokir</string>
+    <string name="blocklist_delete_dialog_message">Apakah Anda yakin ingin menghapus %1$s dari daftar blokir? Kueri DNS ke domain ini tidak akan dicegat lagi.</string>
+    <string name="blocklist_add_success">Domain berhasil ditambahkan ke daftar blokir</string>
+    <string name="blocklist_remove_success">Domain berhasil dihapus dari daftar blokir</string>
+
+    <!-- Categories -->
+    <string name="category_all">Semua Kategori</string>
+    <string name="category_gambling">Perjudian</string>
+    <string name="category_malware">Malware</string>
+    <string name="category_phishing">Phishing</string>
+    <string name="category_adult">Konten Dewasa</string>
+    <string name="category_custom">Kustom</string>
+    <string name="category_ads">Iklan &amp; Pelacak</string>
+    <string name="source_manual">Entri Manual</string>
+    <string name="source_feed">Feed Intelijen Ancaman</string>
+    <string name="source_heuristic">Heuristik Lokal</string>
+
+    <!-- Devices Screen -->
+    <string name="devices_screen_title">Perangkat Terpantau</string>
+    <string name="devices_search_hint">Cari IP perangkat atau MAC…</string>
+    <string name="devices_sort_label">Urutkan Berdasarkan</string>
+    <string name="devices_sort_requests">Permintaan Terbanyak</string>
+    <string name="devices_sort_blocked">Blokir Terbanyak</string>
+    <string name="devices_sort_recent">Aktivitas Terkini</string>
+    <string name="devices_sort_ip">Alamat IP</string>
+    <string name="devices_empty">Belum ada perangkat klien yang terdeteksi</string>
+    <string name="devices_ip_label">IP Klien</string>
+    <string name="devices_mac_label">MAC / ID</string>
+    <string name="devices_total_queries">Total Kueri</string>
+    <string name="devices_blocked_queries">Kueri Diblokir</string>
+    <string name="devices_last_seen">Terakhir Aktif</string>
+    <string name="devices_disclaimer">Pemberitahuan: Kueri DNS mencatat alamat IP klien. Identitas perangkat keras dan nama host dapat bervariasi tergantung DHCP dan konfigurasi jaringan.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_screen_title">Pengaturan</string>
+    <string name="settings_section_mode">Mode Operasi</string>
+    <string name="settings_demo_mode">Mode Demo (Data Simulasi)</string>
+    <string name="settings_demo_mode_desc">Gunakan aktivitas DNS lokal yang realistis untuk demonstrasi tanpa memerlukan hardware ESP32 fisik.</string>
+    <string name="settings_live_mode">Mode Langsung (Jaringan ESP32)</string>
+    <string name="settings_live_mode_desc">Hubungkan langsung ke ESP32 DNS Filtering Engine melalui jaringan Wi-Fi lokal atau LAN.</string>
+    
+    <string name="settings_section_hardware">Koneksi Perangkat ESP32</string>
+    <string name="settings_esp32_ip">Alamat IP ESP32</string>
+    <string name="settings_esp32_ip_hint">192.168.1.10</string>
+    <string name="settings_esp32_http_port">Port REST API</string>
+    <string name="settings_esp32_ws_port">Port WebSocket</string>
+    <string name="settings_test_connection">Uji Koneksi</string>
+    <string name="settings_testing">Menguji koneksi ke ESP32…</string>
+    <string name="settings_test_success">Berhasil terhubung ke ESP32! Mesin DNS merespons normal.</string>
+    <string name="settings_test_failed">Gagal menghubungi ESP32 pada alamat yang ditentukan. Pastikan perangkat berada dalam satu jaringan Wi-Fi.</string>
+    
+    <string name="settings_section_appearance">Tampilan &amp; Tema</string>
+    <string name="settings_theme">Tema Aplikasi</string>
+    <string name="settings_theme_system">Ikuti Sistem</string>
+    <string name="settings_theme_light">Tema Terang</string>
+    <string name="settings_theme_dark">Tema Gelap</string>
+    
+    <string name="settings_section_language">Bahasa / Language</string>
+    <string name="settings_lang_system">Default Sistem</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_lang_id">Bahasa Indonesia</string>
+    
+    <string name="settings_section_storage">Data &amp; Penyimpanan Lokal</string>
+    <string name="settings_clear_cache">Hapus Cache Log DNS</string>
+    <string name="settings_clear_cache_desc">Menghapus riwayat lalu lintas tersimpan dan data perangkat dari basis data lokal.</string>
+    <string name="settings_cache_cleared">Cache basis data lokal berhasil dibersihkan.</string>
+    
+    <string name="settings_section_about">Tentang NetShield IoT</string>
+    <string name="settings_version_label">Versi</string>
+    <string name="settings_version_value">1.0.0 (Rilis Produksi)</string>
+    <string name="settings_architecture_label">Arsitektur</string>
+    <string name="settings_architecture_value">Jetpack Compose + MVVM + Room + Retrofit</string>
+    <string name="settings_about_desc">NetShield IoT menyediakan antarmuka pemantauan terpadu untuk firewall DNS sinkhole berbasis mikrokontroler ESP32. Dirancang dengan estetika keamanan siber profesional dan kemampuan offline caching yang tangguh.</string>
+    <string name="settings_security_note">Pemberitahuan Keamanan: Titik akhir REST dan WebSocket berjalan pada protokol LAN tanpa enkripsi (cleartext) yang ditujukan untuk lingkungan uji laboratorium atau jaringan rumah terpercaya.</string>
+</resources>
