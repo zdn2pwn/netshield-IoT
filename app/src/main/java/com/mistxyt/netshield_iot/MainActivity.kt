@@ -1,16 +1,21 @@
 package com.mistxyt.netshield_iot
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.mistxyt.netshield_iot.core.util.LocaleHelper
+import com.mistxyt.netshield_iot.core.util.NotificationHelper
 import com.mistxyt.netshield_iot.domain.repository.AppThemeMode
 import com.mistxyt.netshield_iot.presentation.blocklist.BlocklistViewModel
 import com.mistxyt.netshield_iot.presentation.dashboard.DashboardViewModel
@@ -22,9 +27,27 @@ import com.mistxyt.netshield_iot.ui.theme.NetshieldiotTheme
 
 class MainActivity : ComponentActivity() {
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Inisialisasi channel notifikasi
+        NotificationHelper.init(applicationContext)
+
+        // Minta izin notifikasi runtime di Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         val app = application as NetShieldApplication
 

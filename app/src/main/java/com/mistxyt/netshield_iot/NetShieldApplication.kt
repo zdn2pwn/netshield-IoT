@@ -45,7 +45,7 @@ class NetShieldApplication : Application() {
         webSocketClient = NetShieldWebSocketClient(NetworkModule.okHttpClient, NetworkModule.gson)
 
         settingsRepository = SettingsRepositoryImpl(preferences)
-        dnsRepository = DnsRepositoryImpl(database, preferences, webSocketClient, applicationScope)
+        dnsRepository = DnsRepositoryImpl(this, database, preferences, webSocketClient, applicationScope)
         blocklistRepository = BlocklistRepositoryImpl(database, preferences, applicationScope)
         deviceRepository = DeviceRepositoryImpl(database, preferences, applicationScope)
     }

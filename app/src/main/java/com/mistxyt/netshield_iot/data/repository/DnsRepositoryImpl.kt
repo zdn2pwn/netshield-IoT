@@ -1,5 +1,8 @@
 package com.mistxyt.netshield_iot.data.repository
 
+import android.content.Context
+import com.mistxyt.netshield_iot.core.util.DomainFilterHelper
+import com.mistxyt.netshield_iot.core.util.NotificationHelper
 import com.mistxyt.netshield_iot.data.demo.DemoDataProvider
 import com.mistxyt.netshield_iot.data.local.NetShieldDatabase
 import com.mistxyt.netshield_iot.data.local.entity.DnsEventEntity
@@ -17,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DnsRepositoryImpl(
+    private val context: Context,
     private val database: NetShieldDatabase,
     private val preferences: NetShieldPreferences,
     private val webSocketClient: NetShieldWebSocketClient,
@@ -68,10 +72,26 @@ class DnsRepositoryImpl(
         // Listen to incoming live WebSocket events and save to local DB safely on IO dispatcher
         scope.launch(Dispatchers.IO) {
             webSocketClient.incomingEvents.collect { event ->
+                val isBlocked = event.action == DnsAction.BLOCK
+
+                // 1. Kirim notifikasi sistem jika domain berkategori sensitif diblokir
+                if (isBlocked && NotificationHelper.isSensitiveCategory(event.category)) {
+                    NotificationHelper.sendSecurityAlert(
+                        context,
+                        event.domain,
+                        event.category,
+                        event.clientIp
+                    )
+                }
+
+                // 2. Filter telemetri / DoH pada query ALLOW agar database dan log bersih
+                if (!isBlocked && DomainFilterHelper.isNoisy(event.domain)) {
+                    return@collect
+                }
+
                 dnsEventDao.insertEvent(DnsEventEntity.fromDomain(event))
                 // Increment dynamic stats
                 val cur = _liveStats.value
-                val isBlocked = event.action == DnsAction.BLOCK
                 _liveStats.value = cur.copy(
                     totalRequests = cur.totalRequests + 1,
                     blockedRequests = if (isBlocked) cur.blockedRequests + 1 else cur.blockedRequests,
@@ -118,7 +138,10 @@ class DnsRepositoryImpl(
                 }
             }
         } else {
-            webSocketClient.incomingEvents
+            webSocketClient.incomingEvents.filter { event ->
+                // Saring telemetri / DoH pada query yang lolos (ALLOW) agar tidak mengotori UI
+                !(event.action == DnsAction.ALLOW && DomainFilterHelper.isNoisy(event.domain))
+            }
         }
     }
 
@@ -197,7 +220,9 @@ class DnsRepositoryImpl(
                         category = evtDto.category ?: "General",
                         source = evtDto.source ?: "ESP32"
                     )
-                }.filter { it.domain.isNotBlank() }
+                }.filter { 
+                    it.domain.isNotBlank() && !(it.action == "ALLOW" && DomainFilterHelper.isNoisy(it.domain))
+                }
                 dnsEventDao.insertEvents(entities)
             }
 

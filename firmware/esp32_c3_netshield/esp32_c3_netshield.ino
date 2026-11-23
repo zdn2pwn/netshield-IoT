@@ -82,14 +82,90 @@ unsigned long lastSyncTime = 0;
 // ==========================================
 
 void addDefaultRules() {
-  blocklist[0] = {"blk-1", "doubleclick.net", "Ads & Trackers", "NetShield Feed", millis()};
-  blocklist[1] = {"blk-2", "googleads.g.doubleclick.net", "Ads & Trackers", "NetShield Feed", millis()};
-  blocklist[2] = {"blk-3", "pagead2.googlesyndication.com", "Ads & Trackers", "NetShield Feed", millis()};
-  blocklist[3] = {"blk-4", "adservice.google.com", "Ads & Trackers", "NetShield Feed", millis()};
-  blocklist[4] = {"blk-5", "crypto-miner-pool.xyz", "Malware", "Threat Intel", millis()};
-  blocklist[5] = {"blk-6", "slot-gacor-online88.top", "Gambling", "Manual Entry", millis()};
-  blocklist[6] = {"blk-7", "secure-login-bank-verify.cc", "Phishing", "Threat Intel", millis()};
-  blocklistCount = 7;
+  blocklistCount = 0;
+  // Adult Content / Bokep
+  blocklist[blocklistCount++] = {"blk-1", "pornhub.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-2", "xvideos.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-3", "xnxx.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-4", "xhamster.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-5", "redtube.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-6", "youporn.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-7", "bokepindonesia.net", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-8", "simontok.com", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-9", "nekopoi.care", "Adult Content", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-10", "doujindesu.tv", "Adult Content", "NetShield Defense", millis()};
+
+  // Gambling / Judi Online (Judol)
+  blocklist[blocklistCount++] = {"blk-11", "slot88.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-12", "sbobet.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-13", "bet365.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-14", "m88.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-15", "poker88.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-16", "zeus88.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-17", "slot-gacor-online88.top", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-18", "pragmaticplay.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-19", "judionline.com", "Gambling", "NetShield Defense", millis()};
+  blocklist[blocklistCount++] = {"blk-20", "togel.com", "Gambling", "NetShield Defense", millis()};
+
+  // Malware & Phishing
+  blocklist[blocklistCount++] = {"blk-21", "crypto-miner-pool.xyz", "Malware", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-22", "trojan-updater.org", "Malware", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-23", "secure-login-bank-verify.cc", "Phishing", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-24", "update-account-security.link", "Phishing", "Threat Intel", millis()};
+
+  // Ads & Trackers
+  blocklist[blocklistCount++] = {"blk-25", "doubleclick.net", "Ads & Trackers", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-26", "googleads.g.doubleclick.net", "Ads & Trackers", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-27", "pagead2.googlesyndication.com", "Ads & Trackers", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-28", "adservice.google.com", "Ads & Trackers", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-29", "adcolony.com", "Ads & Trackers", "Threat Intel", millis()};
+  blocklist[blocklistCount++] = {"blk-30", "applovin.com", "Ads & Trackers", "Threat Intel", millis()};
+}
+
+String classifySensitiveDomain(const String& d) {
+  // Adult / Bokep pattern detection
+  if (d.indexOf("bokep") >= 0 || d.indexOf("porn") >= 0 || d.indexOf("xxx") >= 0 ||
+      d.indexOf("xvideos") >= 0 || d.indexOf("xnxx") >= 0 || d.indexOf("redtube") >= 0 ||
+      d.indexOf("xhamster") >= 0 || d.indexOf("hentai") >= 0 || d.indexOf("youporn") >= 0) {
+    return "Adult Content";
+  }
+
+  // Gambling / Judol pattern detection
+  if (d.indexOf("slot") >= 0 || d.indexOf("gacor") >= 0 || d.indexOf("judol") >= 0 ||
+      d.indexOf("judi") >= 0 || d.indexOf("togel") >= 0 || d.indexOf("casino") >= 0 ||
+      d.indexOf("poker88") >= 0 || d.indexOf("sbobet") >= 0 || d.indexOf("bet88") >= 0 ||
+      d.indexOf("maxwin") >= 0) {
+    return "Gambling";
+  }
+
+  // Malware detection
+  if (d.indexOf("crypto-miner") >= 0 || d.indexOf("ransomware") >= 0 ||
+      d.indexOf("trojan") >= 0 || d.indexOf("stealer") >= 0) {
+    return "Malware";
+  }
+
+  // Phishing detection
+  if (d.indexOf("-verify-bank") >= 0 || d.indexOf("login-secure-") >= 0) {
+    return "Phishing";
+  }
+
+  return "";
+}
+
+bool isNoisyDomain(const String& d) {
+  // 1. DoH & Private DNS
+  if (d == "dns.google" || d == "cloudflare-dns.com" || d == "one.one.one.one" || d == "dns.quad9.net") return true;
+  // 2. Apple iCloud Private Relay & Telemetry noise
+  if (d.indexOf("mask.icloud.com") >= 0 || d.indexOf("mask-h2.icloud.com") >= 0 ||
+      d.indexOf("metrics.icloud.com") >= 0 || d.indexOf(".aaplimg.com") >= 0 ||
+      d.indexOf(".apple-dns.net") >= 0 || d.indexOf("gateway.icloud.com") >= 0) return true;
+  // 3. Network captive portal probes
+  if (d.indexOf("connectivitycheck.gstatic.com") >= 0 || d.indexOf("msftconnecttest.com") >= 0 ||
+      d.indexOf("captive.apple.com") >= 0 || d.indexOf("clients1.google.com") >= 0 ||
+      d.indexOf("clients3.google.com") >= 0) return true;
+  // 4. Reverse DNS & local broadcast
+  if (d.endsWith(".arpa") || d.endsWith(".local") || d == "wpad") return true;
+  return false;
 }
 
 int findBlockRule(const String& domain) {
@@ -146,6 +222,9 @@ void broadcastWebSocketEvent(const String& clientIp, const String& domain, const
   doc["action"] = action;
   doc["category"] = category;
   doc["source"] = "ESP32 Sinkhole";
+  
+  bool isAlert = (action == "BLOCK") && (category == "Adult Content" || category == "Gambling" || category == "Malware" || category == "Phishing");
+  doc["isAlert"] = isAlert;
 
   String jsonString;
   serializeJson(doc, jsonString);
@@ -268,22 +347,34 @@ void handleDnsPacket() {
   totalDnsRequests++;
   String clientIpStr = clientIp.toString();
 
+  // 1. Cek apakah masuk blocklist eksplisit
   int matchIndex = findBlockRule(domain);
+  String blockedCategory = "";
   if (matchIndex != -1) {
+    blockedCategory = blocklist[matchIndex].category;
+  } else {
+    // 2. Cek apakah cocok dengan deteksi heuristik sensitif (Bokep, Judol, Malware, Phishing)
+    blockedCategory = classifySensitiveDomain(domain);
+  }
+
+  if (blockedCategory.length() > 0) {
     blockedDnsRequests++;
-    String category = blocklist[matchIndex].category;
     sendSinkholeResponse(clientIp, clientPort, packetBuffer, len);
     trackDevice(clientIpStr, true);
-    recordRecentEvent(clientIpStr, domain, "BLOCK", category);
-    broadcastWebSocketEvent(clientIpStr, domain, "BLOCK", category);
-    Serial.printf("[BLOCKED] %s from %s (%s)\n", domain.c_str(), clientIpStr.c_str(), category.c_str());
+    recordRecentEvent(clientIpStr, domain, "BLOCK", blockedCategory);
+    broadcastWebSocketEvent(clientIpStr, domain, "BLOCK", blockedCategory);
+    Serial.printf("[BLOCKED: %s] %s from %s\n", blockedCategory.c_str(), domain.c_str(), clientIpStr.c_str());
   } else {
     allowedDnsRequests++;
     forwardToUpstreamDns(clientIp, clientPort, packetBuffer, len);
     trackDevice(clientIpStr, false);
-    recordRecentEvent(clientIpStr, domain, "ALLOW", "General");
-    broadcastWebSocketEvent(clientIpStr, domain, "ALLOW", "General");
-    Serial.printf("[ALLOWED] %s from %s\n", domain.c_str(), clientIpStr.c_str());
+
+    // Filter domain telemetry / DoH / noise agar tidak mengotori feed Android
+    if (!isNoisyDomain(domain)) {
+      recordRecentEvent(clientIpStr, domain, "ALLOW", "General");
+      broadcastWebSocketEvent(clientIpStr, domain, "ALLOW", "General");
+      Serial.printf("[ALLOWED] %s from %s\n", domain.c_str(), clientIpStr.c_str());
+    }
   }
 }
 
