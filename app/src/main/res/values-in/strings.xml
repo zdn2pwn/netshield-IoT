@@ -235,6 +235,12 @@
     <string name="notification_alert_big">Peringatan Keamanan NetShield:\nAkses ke situs terlarang %1$s (%2$s) berhasil diblokir secara instan!\nPerangkat Klien: %3$s</string>
     <string name="blocklist_edit_domain">Ubah Domain Blokir</string>
     <string name="action_edit">Ubah</string>
+    <string name="device_mac_dhcp">Dinamis (DHCP)</string>
+    <string name="engine_threat_intel">Intelijen Ancaman</string>
+    <string name="engine_netshield_defense">Pertahanan NetShield</string>
+    <string name="engine_cloudflare">Upstream Cloudflare</string>
+    <string name="engine_manual">Entri Manual</string>
+    <string name="engine_system">Filter Sistem</string>
 </resources>
 
 

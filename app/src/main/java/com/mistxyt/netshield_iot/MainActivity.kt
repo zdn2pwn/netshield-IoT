@@ -12,6 +12,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.mistxyt.netshield_iot.core.util.LocaleHelper
@@ -79,7 +80,10 @@ class MainActivity : ComponentActivity() {
             val currentContext = LocalContext.current
             val localizedContext = LocaleHelper.getLocalizedContext(currentContext, settingsState.language)
 
-            CompositionLocalProvider(LocalContext provides localizedContext) {
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalConfiguration provides localizedContext.resources.configuration
+            ) {
                 NetshieldiotTheme(darkTheme = isDarkTheme) {
                     NetShieldMainApp(
                         dashboardViewModel = dashboardViewModel,

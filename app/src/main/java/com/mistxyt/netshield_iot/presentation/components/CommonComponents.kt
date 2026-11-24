@@ -155,17 +155,27 @@ fun SectionHeader(
 }
 
 @Composable
-fun categoryDisplayName(category: String): String = when (category) {
-    "All" -> stringResource(R.string.category_all)
-    "Malware" -> stringResource(R.string.category_malware)
-    "Phishing" -> stringResource(R.string.category_phishing)
-    "Gambling" -> stringResource(R.string.category_gambling)
-    "Adult Content" -> stringResource(R.string.category_adult)
-    "Ads & Trackers" -> stringResource(R.string.category_ads)
-    "Custom" -> stringResource(R.string.category_custom)
-    "Development" -> stringResource(R.string.category_development)
-    "General" -> stringResource(R.string.category_general)
+fun categoryDisplayName(category: String): String = when (category.trim().lowercase()) {
+    "all", "semua", "semua kategori", "all categories" -> stringResource(R.string.category_all)
+    "malware" -> stringResource(R.string.category_malware)
+    "phishing" -> stringResource(R.string.category_phishing)
+    "gambling", "perjudian", "judol", "judi online" -> stringResource(R.string.category_gambling)
+    "adult content", "konten dewasa", "pornografi", "adult" -> stringResource(R.string.category_adult)
+    "ads & trackers", "iklan & pelacak", "iklan", "ads", "trackers" -> stringResource(R.string.category_ads)
+    "custom", "kustom" -> stringResource(R.string.category_custom)
+    "development", "pengembangan" -> stringResource(R.string.category_development)
+    "general", "umum" -> stringResource(R.string.category_general)
     else -> category
+}
+
+@Composable
+fun filterEngineDisplayName(source: String): String = when (source.trim().lowercase()) {
+    "threat intel", "intelijen ancaman" -> stringResource(R.string.engine_threat_intel)
+    "netshield defense", "pertahanan netshield" -> stringResource(R.string.engine_netshield_defense)
+    "cloudflare upstream", "upstream cloudflare" -> stringResource(R.string.engine_cloudflare)
+    "manual entry", "entri manual" -> stringResource(R.string.engine_manual)
+    "system", "system filter", "filter sistem" -> stringResource(R.string.engine_system)
+    else -> source
 }
 
 @Composable

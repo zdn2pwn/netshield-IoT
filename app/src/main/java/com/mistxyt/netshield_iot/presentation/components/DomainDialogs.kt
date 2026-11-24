@@ -372,11 +372,11 @@ fun DnsEventDetailDialog(
                 }
 
                 DetailItemRow(label = stringResource(R.string.traffic_detail_status), value = if (isBlocked) stringResource(R.string.traffic_detail_blocked_status) else stringResource(R.string.traffic_detail_allowed_status))
-                DetailItemRow(label = stringResource(R.string.traffic_detail_category), value = event.category)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_category), value = categoryDisplayName(event.category))
                 DetailItemRow(label = stringResource(R.string.traffic_detail_client_ip), value = event.clientIp)
                 DetailItemRow(label = stringResource(R.string.traffic_detail_query_type), value = event.queryType)
                 DetailItemRow(label = stringResource(R.string.traffic_detail_access_time), value = DateTimeHelper.formatWibFullDateTime(event.timestamp))
-                DetailItemRow(label = stringResource(R.string.traffic_detail_filter_engine), value = event.source)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_filter_engine), value = filterEngineDisplayName(event.source))
 
                 if (isBlocked) {
                     Surface(

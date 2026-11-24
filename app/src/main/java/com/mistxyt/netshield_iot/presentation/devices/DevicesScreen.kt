@@ -381,7 +381,7 @@ fun DeviceCard(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "${device.blockRatioPercentage}% Blokir",
+                                text = stringResource(R.string.stat_blocked_badge, "${device.blockRatioPercentage}%"),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = if (device.blockedCount > 0) StatusBlockedRed
@@ -517,7 +517,7 @@ fun DeviceDetailBottomSheet(
                             )
                         }
                         Text(
-                            text = "${device.ipAddress} • MAC: ${device.macAddress ?: "Dynamic (DHCP)"}",
+                            text = "${device.ipAddress} • MAC: ${device.macAddress ?: stringResource(R.string.device_mac_dhcp)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -536,7 +536,7 @@ fun DeviceDetailBottomSheet(
                         .padding(horizontal = 9.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "${device.blockRatioPercentage}% Blokir",
+                        text = stringResource(R.string.stat_blocked_badge, "${device.blockRatioPercentage}%"),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (device.blockedCount > 0) StatusBlockedRed else MaterialTheme.colorScheme.onSurfaceVariant

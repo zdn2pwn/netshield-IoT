@@ -235,6 +235,12 @@
     <string name="notification_alert_big">NetShield Security Alert:\nAccess to restricted site %1$s (%2$s) was blocked instantly!\nClient Device: %3$s</string>
     <string name="blocklist_edit_domain">Edit Blocked Domain</string>
     <string name="action_edit">Edit</string>
+    <string name="device_mac_dhcp">Dynamic (DHCP)</string>
+    <string name="engine_threat_intel">Threat Intel</string>
+    <string name="engine_netshield_defense">NetShield Defense</string>
+    <string name="engine_cloudflare">Cloudflare Upstream</string>
+    <string name="engine_manual">Manual Entry</string>
+    <string name="engine_system">System Filter</string>
 </resources>
 
 
