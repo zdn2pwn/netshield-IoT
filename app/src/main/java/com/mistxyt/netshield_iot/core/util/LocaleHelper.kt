@@ -12,8 +12,8 @@ object LocaleHelper {
 
     fun getLocalizedContext(context: Context, language: AppLanguage): Context {
         val locale = when (language) {
-            AppLanguage.EN -> Locale.forLanguageTag("en")
-            AppLanguage.ID -> Locale.forLanguageTag("in")
+            AppLanguage.EN -> Locale("en", "US")
+            AppLanguage.ID -> Locale("in", "ID")
             AppLanguage.SYSTEM -> return context
         }
 

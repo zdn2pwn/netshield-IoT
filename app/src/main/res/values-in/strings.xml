@@ -11,8 +11,8 @@
     <string name="nav_settings">Pengaturan</string>
 
     <!-- General Status & Actions -->
-    <string name="status_online">Online</string>
-    <string name="status_offline">Offline</string>
+    <string name="status_online">Terhubung</string>
+    <string name="status_offline">Terputus</string>
     <string name="status_connected">Terhubung</string>
     <string name="status_disconnected">Terputus</string>
     <string name="status_active">Aktif</string>
@@ -60,7 +60,7 @@
 
     <!-- Live Traffic Screen -->
     <string name="traffic_screen_title">Lalu Lintas DNS Langsung</string>
-    <string name="traffic_search_hint">Cari domain atau IP klien…</string>
+    <string name="traffic_search_hint">Cari domain atau IP klienâ€¦</string>
     <string name="traffic_filter_all">Semua</string>
     <string name="traffic_filter_allowed">Diizinkan</string>
     <string name="traffic_filter_blocked">Diblokir</string>
@@ -68,15 +68,15 @@
     <string name="traffic_resume">Lanjutkan Aliran</string>
     <string name="traffic_paused_label">Aliran Dijeda</string>
     <string name="traffic_live_label">Aliran Langsung Aktif</string>
-    <string name="traffic_ws_connecting">Menghubungkan ke WebSocket…</string>
-    <string name="traffic_ws_reconnecting">Koneksi terputus. Mencoba menghubungkan kembali…</string>
+    <string name="traffic_ws_connecting">Menghubungkan ke WebSocketâ€¦</string>
+    <string name="traffic_ws_reconnecting">Koneksi terputus. Mencoba menghubungkan kembaliâ€¦</string>
     <string name="traffic_ws_disconnected">WebSocket terputus</string>
     <string name="traffic_empty_state">Tidak ada aktivitas DNS yang sesuai dengan filter</string>
     <string name="traffic_events_count">%1$d peristiwa terpantau</string>
 
     <!-- Blocklist Screen -->
     <string name="blocklist_screen_title">Daftar Blokir Domain</string>
-    <string name="blocklist_search_hint">Cari domain yang diblokir…</string>
+    <string name="blocklist_search_hint">Cari domain yang diblokirâ€¦</string>
     <string name="blocklist_add_domain">Tambah Domain</string>
     <string name="blocklist_domain_label">Nama Domain</string>
     <string name="blocklist_domain_hint">contoh.com atau ads.pelacak.org</string>
@@ -84,7 +84,7 @@
     <string name="blocklist_category_label">Kategori</string>
     <string name="blocklist_source_label">Sumber</string>
     <string name="blocklist_sync_action">Sinkronkan ke ESP32</string>
-    <string name="blocklist_syncing">Menyinkronkan aturan ke ESP32…</string>
+    <string name="blocklist_syncing">Menyinkronkan aturan ke ESP32â€¦</string>
     <string name="blocklist_sync_success">Daftar blokir berhasil disinkronkan</string>
     <string name="blocklist_sync_failed">Sinkronisasi ke ESP32 gagal</string>
     <string name="blocklist_empty">Daftar blokir masih kosong</string>
@@ -107,7 +107,7 @@
 
     <!-- Devices Screen -->
     <string name="devices_screen_title">Perangkat Terpantau</string>
-    <string name="devices_search_hint">Cari IP perangkat atau MAC…</string>
+    <string name="devices_search_hint">Cari IP perangkat atau MACâ€¦</string>
     <string name="devices_sort_label">Urutkan Berdasarkan</string>
     <string name="devices_sort_requests">Permintaan Terbanyak</string>
     <string name="devices_sort_blocked">Blokir Terbanyak</string>
@@ -135,7 +135,7 @@
     <string name="settings_esp32_http_port">Port REST API</string>
     <string name="settings_esp32_ws_port">Port WebSocket</string>
     <string name="settings_test_connection">Uji Koneksi</string>
-    <string name="settings_testing">Menguji koneksi ke ESP32…</string>
+    <string name="settings_testing">Menguji koneksi ke ESP32â€¦</string>
     <string name="settings_test_success">Berhasil terhubung ke ESP32! Mesin DNS merespons normal.</string>
     <string name="settings_test_failed">Gagal menghubungi ESP32 pada alamat yang ditentukan. Pastikan perangkat berada dalam satu jaringan Wi-Fi.</string>
     
@@ -185,7 +185,7 @@
     <string name="device_paused_badge">DIJEDA</string>
     <string name="action_details">Detail</string>
     <string name="device_model_label">Model: %1$s</string>
-    <string name="device_ip_mac">%1$s � MAC: %2$s</string>
+    <string name="device_ip_mac">%1$s • MAC: %2$s</string>
     <string name="device_edit_alias">Edit Nama</string>
     <string name="device_pause_internet">Jeda Internet</string>
     <string name="device_resume_internet">Lanjutkan Internet</string>
@@ -200,11 +200,11 @@
     <string name="device_detected_model">Terdeteksi: %1$s</string>
     <string name="device_alias_label">Nama / Alias Kustom</string>
     <string name="device_type_label">Tipe Perangkat</string>
-    <string name="device_type_smartphone">Smartphone</string>
+    <string name="device_type_smartphone">Ponsel Pintar</string>
     <string name="device_type_tablet">Tablet</string>
     <string name="device_type_laptop">Laptop / Komputer</string>
-    <string name="device_type_router">Router / Gateway</string>
-    <string name="device_type_iot">Smart IoT Device</string>
+    <string name="device_type_router">Router / Gerbang</string>
+    <string name="device_type_iot">Perangkat Pintar IoT</string>
     <string name="device_type_other">Lainnya</string>
     <string name="stat_subtext_all_queries">Semua Kueri DNS</string>
     <string name="stat_subtext_threats_prevented">Ancaman Dicegah</string>
@@ -212,29 +212,29 @@
     <string name="stat_subtext_clean_traffic">Lalu Lintas Bersih</string>
     <string name="stat_safe_badge">%1$s Aman</string>
     <string name="stat_subtext_clients_connected">Klien Terhubung</string>
-    <string name="system_gateway_title">ESP32 DNS Gateway</string>
+    <string name="system_gateway_title">Gerbang DNS ESP32</string>
     <string name="system_port_53">Port 53</string>
     <string name="system_dns_engine_label">Mesin DNS</string>
     <string name="system_dns_active">Aktif (1.1.1.3)</string>
     <string name="system_websocket_label">WebSocket</string>
-    <string name="system_live_stream">Live Stream</string>
+    <string name="system_live_stream">Siaran Langsung</string>
     <string name="system_disconnected">Terputus</string>
     <string name="system_uptime_label">Operasional</string>
     <string name="system_sync_label">Sinkronisasi</string>
-    <string name="system_upstream_dns">Upstream DNS: Cloudflare Security 1.1.1.3 (Malware &amp; Phishing Filter)</string>
+    <string name="system_upstream_dns">DNS Upstream: Cloudflare Security 1.1.1.3 (Penyaring Malware &amp; Phishing)</string>
     <string name="nav_tagline">Sistem Keamanan &amp; Visibilitas DNS</string>
-    <string name="nav_gateway_tag">ESP32 Gateway</string>
+    <string name="nav_gateway_tag">Gerbang ESP32</string>
     <string name="about_title">NetShield IoT Gateway Suite</string>
     <string name="about_version">Versi 2.0.0 (Rilis Produksi)</string>
-    <string name="about_desc">Didukung oleh ESP32 Dual-Core DNS Engine &amp; Cloudflare 1.1.1.3 Family Upstream Security.</string>
+    <string name="about_desc">Didukung oleh Mesin DNS Dual-Core ESP32 &amp; Keamanan Upstream Cloudflare 1.1.1.3 Family.</string>
     <string name="category_development">Pengembangan</string>
     <string name="category_general">Umum</string>
     <string name="recent_activity_subtitle">Aktivitas domain yang baru saja diakses</string>
-    <string name="notification_alert_title">?? [DIBLOKIR] Akses Situs Terlarang!</string>
+    <string name="notification_alert_title">[DIBLOKIR] Akses Situs Terlarang!</string>
     <string name="notification_alert_text">%1$s (%2$s) dari %3$s</string>
     <string name="notification_alert_big">Peringatan Keamanan NetShield:\nAkses ke situs terlarang %1$s (%2$s) berhasil diblokir secara instan!\nPerangkat Klien: %3$s</string>
-    <string name="blocklist_edit_domain">Edit Domain Blokir</string>
-    <string name="action_edit">Edit</string>
+    <string name="blocklist_edit_domain">Ubah Domain Blokir</string>
+    <string name="action_edit">Ubah</string>
 </resources>
 
 

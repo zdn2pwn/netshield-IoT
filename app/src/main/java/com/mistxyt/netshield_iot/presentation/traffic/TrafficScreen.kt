@@ -164,14 +164,14 @@ fun TrafficScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                         unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                        .border(1.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f), RoundedCornerShape(14.dp))
                 )
 
                 // Segmented Action Filter Pills (Diblokir Saja, Semua, Diizinkan)
@@ -192,14 +192,40 @@ fun TrafficScreen(
                         },
                         label = { Text(stringResource(R.string.traffic_filter_blocked_only), fontWeight = FontWeight.SemiBold) },
                         shape = RoundedCornerShape(999.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.BLOCKED) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = uiState.actionFilter == TrafficFilterAction.BLOCKED,
+                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                            selectedBorderColor = StatusBlockedRed,
+                            borderWidth = 1.dp,
+                            selectedBorderWidth = 1.5.dp
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            selectedContainerColor = StatusBlockedRed.copy(alpha = 0.15f),
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedLabelColor = StatusBlockedRed
+                        )
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALL,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
                         label = { Text(stringResource(R.string.traffic_filter_all), fontWeight = FontWeight.SemiBold) },
                         shape = RoundedCornerShape(999.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.ALL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = uiState.actionFilter == TrafficFilterAction.ALL,
+                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                            selectedBorderColor = MaterialTheme.colorScheme.primary,
+                            borderWidth = 1.dp,
+                            selectedBorderWidth = 1.5.dp
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALLOWED,
@@ -214,7 +240,20 @@ fun TrafficScreen(
                         },
                         label = { Text(stringResource(R.string.traffic_filter_allowed), fontWeight = FontWeight.SemiBold) },
                         shape = RoundedCornerShape(999.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.ALLOWED) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = uiState.actionFilter == TrafficFilterAction.ALLOWED,
+                            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                            selectedBorderColor = StatusAllowedGreen,
+                            borderWidth = 1.dp,
+                            selectedBorderWidth = 1.5.dp
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            selectedContainerColor = StatusAllowedGreen.copy(alpha = 0.15f),
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedLabelColor = StatusAllowedGreen
+                        )
                     )
                 }
 
@@ -226,12 +265,26 @@ fun TrafficScreen(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     categories.forEach { category ->
+                        val isSelected = uiState.categoryFilter == category
                         FilterChip(
-                            selected = uiState.categoryFilter == category,
+                            selected = isSelected,
                             onClick = { viewModel.setCategoryFilter(category) },
                             label = { Text(categoryDisplayName(category), style = MaterialTheme.typography.labelSmall) },
                             shape = RoundedCornerShape(999.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.categoryFilter == category) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 1.5.dp
+                            ),
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
                         )
                     }
                 }

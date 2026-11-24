@@ -94,7 +94,7 @@ fun AddDomainDialog(
                     onExpandedChange = { dropdownExpanded = !dropdownExpanded }
                 ) {
                     OutlinedTextField(
-                        value = selectedCategory,
+                        value = categoryDisplayName(selectedCategory),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.blocklist_category_label)) },
@@ -149,6 +149,7 @@ fun AddDomainDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDomainDialog(
     initialDomain: String,
@@ -214,7 +215,7 @@ fun EditDomainDialog(
                     onExpandedChange = { dropdownExpanded = !dropdownExpanded }
                 ) {
                     OutlinedTextField(
-                        value = selectedCategory,
+                        value = categoryDisplayName(selectedCategory),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.blocklist_category_label)) },

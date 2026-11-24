@@ -123,8 +123,9 @@ void addDefaultRules() {
 }
 
 int findBlockRuleById(const String& id) {
+  if (id.length() == 0) return -1;
   for (int i = 0; i < blocklistCount; i++) {
-    if (blocklist[i].id == id) return i;
+    if (blocklist[i].id.equalsIgnoreCase(id) || blocklist[i].domain.equalsIgnoreCase(id)) return i;
   }
   return -1;
 }
@@ -614,60 +615,80 @@ void setupRestRoutes() {
     restServer.send(201, "application/json", resStr);
   });
 
-  // 7b. Delete Blocklist Item
-  restServer.on("/api/v1/blocklist/*", HTTP_DELETE, []() {
-    String uri = restServer.uri();
-    int lastSlash = uri.lastIndexOf('/');
-    String id = (lastSlash >= 0) ? uri.substring(lastSlash + 1) : "";
+  // 7b. Delete Blocklist Item (Support query param /api/v1/blocklist?id=xxx or ?domain=xxx)
+  restServer.on("/api/v1/blocklist", HTTP_DELETE, []() {
+    String id = "";
+    if (restServer.hasArg("id")) id = restServer.arg("id");
+    else if (restServer.hasArg("domain")) id = restServer.arg("domain");
     id.trim();
+
     int idx = findBlockRuleById(id);
-    if (idx < 0) {
-      restServer.send(404, "application/json", "{\"error\":\"Rule not found\"}");
-      return;
+    if (idx >= 0) {
+      for (int i = idx; i < blocklistCount - 1; i++) {
+        blocklist[i] = blocklist[i + 1];
+      }
+      blocklistCount--;
     }
-    for (int i = idx; i < blocklistCount - 1; i++) {
-      blocklist[i] = blocklist[i + 1];
-    }
-    blocklistCount--;
-    restServer.send(200, "application/json", "{\"success\":true}");
+    restServer.send(200, "application/json", "{\"success\":true,\"message\":\"Domain removed\"}");
   });
 
-  // 7c. Edit Blocklist Item
-  restServer.on("/api/v1/blocklist/*", HTTP_PUT, []() {
+  // Dynamic Routing Handler for subpaths like /api/v1/blocklist/{id}
+  restServer.onNotFound([]() {
     String uri = restServer.uri();
-    int lastSlash = uri.lastIndexOf('/');
-    String id = (lastSlash >= 0) ? uri.substring(lastSlash + 1) : "";
-    id.trim();
-    int idx = findBlockRuleById(id);
-    if (idx < 0) {
-      restServer.send(404, "application/json", "{\"error\":\"Rule not found\"}");
-      return;
-    }
-    if (!restServer.hasArg("plain")) {
-      restServer.send(400, "application/json", "{\"error\":\"Missing body\"}");
-      return;
-    }
-    JsonDocument doc;
-    DeserializationError err = deserializeJson(doc, restServer.arg("plain"));
-    if (err) {
-      restServer.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
-      return;
-    }
-    String domain = doc["domain"] | "";
-    String category = doc["category"] | "";
-    if (domain.length() > 0) blocklist[idx].domain = domain;
-    if (category.length() > 0) blocklist[idx].category = category;
+    HTTPMethod method = restServer.method();
 
-    JsonDocument resp;
-    resp["id"] = blocklist[idx].id;
-    resp["domain"] = blocklist[idx].domain;
-    resp["category"] = blocklist[idx].category;
-    resp["source"] = blocklist[idx].source;
-    resp["createdAt"] = blocklist[idx].createdAt;
-    resp["enabled"] = true;
-    String resStr;
-    serializeJson(resp, resStr);
-    restServer.send(200, "application/json", resStr);
+    if (uri.startsWith("/api/v1/blocklist/")) {
+      String id = uri.substring(18); // length of "/api/v1/blocklist/"
+      id.trim();
+      if (id.endsWith("/")) id = id.substring(0, id.length() - 1);
+
+      if (method == HTTP_DELETE) {
+        int idx = findBlockRuleById(id);
+        if (idx >= 0) {
+          for (int i = idx; i < blocklistCount - 1; i++) {
+            blocklist[i] = blocklist[i + 1];
+          }
+          blocklistCount--;
+        }
+        restServer.send(200, "application/json", "{\"success\":true,\"message\":\"Domain removed\"}");
+        return;
+      } else if (method == HTTP_PUT) {
+        int idx = findBlockRuleById(id);
+        if (idx < 0) {
+          restServer.send(404, "application/json", "{\"error\":\"Rule not found\"}");
+          return;
+        }
+        if (!restServer.hasArg("plain")) {
+          restServer.send(400, "application/json", "{\"error\":\"Missing body\"}");
+          return;
+        }
+        JsonDocument doc;
+        DeserializationError err = deserializeJson(doc, restServer.arg("plain"));
+        if (err) {
+          restServer.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+          return;
+        }
+        String domain = doc["domain"] | "";
+        String category = doc["category"] | "";
+        if (domain.length() > 0) blocklist[idx].domain = domain;
+        if (category.length() > 0) blocklist[idx].category = category;
+
+        JsonDocument resp;
+        resp["id"] = blocklist[idx].id;
+        resp["domain"] = blocklist[idx].domain;
+        resp["category"] = blocklist[idx].category;
+        resp["source"] = blocklist[idx].source;
+        resp["createdAt"] = blocklist[idx].createdAt;
+        resp["enabled"] = true;
+        String resStr;
+        serializeJson(resp, resStr);
+        restServer.send(200, "application/json", resStr);
+        return;
+      }
+    }
+
+    // Default 404
+    restServer.send(404, "application/json", "{\"error\":\"Not found\",\"uri\":\"" + uri + "\"}");
   });
 
   // 8. Sync Blocklist

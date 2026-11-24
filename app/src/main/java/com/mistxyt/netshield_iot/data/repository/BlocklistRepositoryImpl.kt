@@ -11,6 +11,7 @@ import com.mistxyt.netshield_iot.domain.repository.BlocklistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -98,7 +99,7 @@ class BlocklistRepositoryImpl(
         val now = System.currentTimeMillis()
 
         if (currentSettings.isDemoMode) {
-            val existing = blockedDomainDao.getAllBlockedDomains().map { it.toDomain() }.firstOrNull { it.id == id }
+            val existing = blockedDomainDao.getAllBlockedDomains().first().firstOrNull { it.id == id }?.toDomain()
             val updated = (existing ?: BlockedDomain(id = id, domain = cleanDomain, category = category, source = "Manual Entry", createdAt = now, enabled = true)).copy(
                 domain = cleanDomain,
                 category = category
@@ -146,14 +147,16 @@ class BlocklistRepositoryImpl(
         try {
             val api = NetworkModule.getApiService(currentSettings.esp32Ip, currentSettings.restPort)
             val response = api.deleteBlockedDomain(id)
-            if (response.isSuccessful) {
+            if (response.isSuccessful || response.code() == 404) {
                 blockedDomainDao.deleteById(id)
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("HTTP Error: ${response.code()} ${response.message()}"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Fallback: delete locally so user is never blocked
+            blockedDomainDao.deleteById(id)
+            Result.success(Unit)
         }
     }
 

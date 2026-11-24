@@ -183,14 +183,14 @@ fun DevicesScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                         unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                        .border(1.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f), RoundedCornerShape(14.dp))
                 )
             }
         }
@@ -789,7 +789,7 @@ fun EditDeviceDialog(
                     onExpandedChange = { typeMenuExpanded = !typeMenuExpanded }
                 ) {
                     OutlinedTextField(
-                        value = deviceTypeLabels[selectedType] ?: "Unknown",
+                        value = deviceTypeLabels[selectedType] ?: stringResource(R.string.device_type_other),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.device_type_label)) },
@@ -816,7 +816,7 @@ fun EditDeviceDialog(
                                             modifier = Modifier.size(20.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
-                                        Text(deviceTypeLabels[type] ?: type.name)
+                                        Text(deviceTypeLabels[type] ?: stringResource(R.string.device_type_other))
                                     }
                                 },
                                 onClick = {

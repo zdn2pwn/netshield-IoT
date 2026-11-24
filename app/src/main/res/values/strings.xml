@@ -60,7 +60,7 @@
 
     <!-- Live Traffic Screen -->
     <string name="traffic_screen_title">Live DNS Traffic</string>
-    <string name="traffic_search_hint">Search domain or client IP…</string>
+    <string name="traffic_search_hint">Search domain or client IPâ€¦</string>
     <string name="traffic_filter_all">All</string>
     <string name="traffic_filter_allowed">Allowed</string>
     <string name="traffic_filter_blocked">Blocked</string>
@@ -68,15 +68,15 @@
     <string name="traffic_resume">Resume Stream</string>
     <string name="traffic_paused_label">Stream Paused</string>
     <string name="traffic_live_label">Live Stream Active</string>
-    <string name="traffic_ws_connecting">Connecting to WebSocket…</string>
-    <string name="traffic_ws_reconnecting">Connection lost. Reconnecting…</string>
+    <string name="traffic_ws_connecting">Connecting to WebSocketâ€¦</string>
+    <string name="traffic_ws_reconnecting">Connection lost. Reconnectingâ€¦</string>
     <string name="traffic_ws_disconnected">WebSocket disconnected</string>
     <string name="traffic_empty_state">No DNS events match the current filter</string>
     <string name="traffic_events_count">%1$d events observed</string>
 
     <!-- Blocklist Screen -->
     <string name="blocklist_screen_title">Domain Blocklist</string>
-    <string name="blocklist_search_hint">Search blocked domains…</string>
+    <string name="blocklist_search_hint">Search blocked domainsâ€¦</string>
     <string name="blocklist_add_domain">Add Domain</string>
     <string name="blocklist_domain_label">Domain Name</string>
     <string name="blocklist_domain_hint">example.com or ads.tracker.org</string>
@@ -84,7 +84,7 @@
     <string name="blocklist_category_label">Category</string>
     <string name="blocklist_source_label">Source</string>
     <string name="blocklist_sync_action">Sync with ESP32</string>
-    <string name="blocklist_syncing">Syncing rules to ESP32…</string>
+    <string name="blocklist_syncing">Syncing rules to ESP32â€¦</string>
     <string name="blocklist_sync_success">Blocklist synchronized successfully</string>
     <string name="blocklist_sync_failed">ESP32 blocklist sync failed</string>
     <string name="blocklist_empty">No blocked domains in list</string>
@@ -107,7 +107,7 @@
 
     <!-- Devices Screen -->
     <string name="devices_screen_title">Observed Devices</string>
-    <string name="devices_search_hint">Search device IP or MAC…</string>
+    <string name="devices_search_hint">Search device IP or MACâ€¦</string>
     <string name="devices_sort_label">Sort By</string>
     <string name="devices_sort_requests">Most Requests</string>
     <string name="devices_sort_blocked">Most Blocked</string>
@@ -135,7 +135,7 @@
     <string name="settings_esp32_http_port">REST API Port</string>
     <string name="settings_esp32_ws_port">WebSocket Port</string>
     <string name="settings_test_connection">Test Connection</string>
-    <string name="settings_testing">Testing connection to ESP32…</string>
+    <string name="settings_testing">Testing connection to ESP32â€¦</string>
     <string name="settings_test_success">Connected to ESP32 successfully! Engine is responding.</string>
     <string name="settings_test_failed">Unable to reach ESP32 at specified address. Ensure your device is on the same Wi-Fi network.</string>
     
@@ -185,7 +185,7 @@
     <string name="device_paused_badge">PAUSED</string>
     <string name="action_details">Details</string>
     <string name="device_model_label">Model: %1$s</string>
-    <string name="device_ip_mac">%1$s � MAC: %2$s</string>
+    <string name="device_ip_mac">%1$s • MAC: %2$s</string>
     <string name="device_edit_alias">Edit Name</string>
     <string name="device_pause_internet">Pause Internet</string>
     <string name="device_resume_internet">Resume Internet</string>
@@ -230,7 +230,7 @@
     <string name="category_development">Development</string>
     <string name="category_general">General</string>
     <string name="recent_activity_subtitle">Recently accessed domain activity</string>
-    <string name="notification_alert_title">?? [BLOCKED] Restricted Site Access!</string>
+    <string name="notification_alert_title">[BLOCKED] Restricted Site Access!</string>
     <string name="notification_alert_text">%1$s (%2$s) from %3$s</string>
     <string name="notification_alert_big">NetShield Security Alert:\nAccess to restricted site %1$s (%2$s) was blocked instantly!\nClient Device: %3$s</string>
     <string name="blocklist_edit_domain">Edit Blocked Domain</string>

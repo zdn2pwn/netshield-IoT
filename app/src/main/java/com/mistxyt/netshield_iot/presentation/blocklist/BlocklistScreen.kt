@@ -172,14 +172,14 @@ fun BlocklistScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                             unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                            .border(1.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f), RoundedCornerShape(14.dp))
                     )
 
                     // Category Chips
@@ -190,12 +190,26 @@ fun BlocklistScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         categories.forEach { category ->
+                            val isSelected = uiState.selectedCategory == category
                             FilterChip(
-                                selected = uiState.selectedCategory == category,
+                                selected = isSelected,
                                 onClick = { viewModel.onCategorySelect(category) },
                                 label = { Text(categoryDisplayName(category), style = MaterialTheme.typography.labelSmall) },
                                 shape = RoundedCornerShape(999.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.selectedCategory == category) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSelected,
+                                    borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                                    selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                    borderWidth = 1.dp,
+                                    selectedBorderWidth = 1.5.dp
+                                ),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    labelColor = MaterialTheme.colorScheme.onSurface,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             )
                         }
                     }

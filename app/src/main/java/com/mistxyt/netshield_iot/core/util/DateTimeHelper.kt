@@ -35,7 +35,7 @@ object DateTimeHelper {
      */
     fun formatWibTime(timestamp: Long): String {
         val validMs = resolveValidEpochMs(timestamp)
-        val sdf = SimpleDateFormat("HH:mm:ss", Locale.forLanguageTag("id-ID"))
+        val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         sdf.timeZone = WIB_TIME_ZONE
         return "${sdf.format(Date(validMs))} WIB"
     }
@@ -46,7 +46,7 @@ object DateTimeHelper {
      */
     fun formatWibShortDateTime(timestamp: Long): String {
         val validMs = resolveValidEpochMs(timestamp)
-        val sdf = SimpleDateFormat("d MMM, HH:mm", Locale.forLanguageTag("id-ID"))
+        val sdf = SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
         sdf.timeZone = WIB_TIME_ZONE
         return "${sdf.format(Date(validMs))} WIB"
     }
@@ -57,7 +57,7 @@ object DateTimeHelper {
      */
     fun formatWibFullDateTime(timestamp: Long): String {
         val validMs = resolveValidEpochMs(timestamp)
-        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.forLanguageTag("id-ID"))
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
         sdf.timeZone = WIB_TIME_ZONE
         return "${sdf.format(Date(validMs))} WIB"
     }

@@ -358,18 +358,18 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = "NetShield IoT Gateway Suite",
+                            text = stringResource(R.string.about_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Versi 2.0.0 (Production Release)",
+                            text = stringResource(R.string.about_version),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Didukung oleh ESP32 Dual-Core DNS Engine & Cloudflare 1.1.1.3 Family Upstream Security.",
+                            text = stringResource(R.string.about_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
