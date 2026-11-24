@@ -50,8 +50,16 @@ fun NetShieldMainApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Dashboard.route
 
-    val items = Screen.bottomNavItems
-    val selectedIndex = items.indexOfFirst { it.route == currentRoute }.coerceAtLeast(0)
+    val items = remember {
+        listOf(
+            Screen.Dashboard,
+            Screen.Traffic,
+            Screen.Blocklist,
+            Screen.Devices,
+            Screen.Settings
+        )
+    }
+    val selectedIndex = items.indexOfFirst { it.route == currentRoute }.let { if (it >= 0) it else 0 }
 
     Scaffold(
         topBar = {

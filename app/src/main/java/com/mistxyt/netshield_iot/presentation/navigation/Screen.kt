@@ -57,6 +57,11 @@ sealed class Screen(
     )
 
     companion object {
-        val bottomNavItems = listOf(Dashboard, Traffic, Blocklist, Devices, Settings)
+        val navItems: List<Screen>
+            get() = listOf(Dashboard, Traffic, Blocklist, Devices, Settings)
+
+        // Backward compatibility
+        val bottomNavItems: List<Screen>
+            get() = navItems
     }
 }
