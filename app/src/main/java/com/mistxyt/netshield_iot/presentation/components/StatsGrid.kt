@@ -1,13 +1,14 @@
 package com.mistxyt.netshield_iot.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Devices
-import androidx.compose.material.icons.outlined.QueryStats
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Hub
+import androidx.compose.material.icons.rounded.QueryStats
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.domain.model.DashboardStats
 import com.mistxyt.netshield_iot.ui.theme.*
@@ -33,50 +35,54 @@ fun StatsGrid(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatCard(
+            ModernStatCard(
                 title = stringResource(R.string.stat_total_requests),
                 value = formatter.format(stats.totalRequests),
-                icon = Icons.Outlined.QueryStats,
+                icon = Icons.Rounded.QueryStats,
                 accentColor = MaterialTheme.colorScheme.primary,
-                subtext = null,
+                subtext = "Semua Kueri DNS",
+                badgeText = null,
                 modifier = Modifier.weight(1f)
             )
-            StatCard(
-                title = stringResource(R.string.stat_unique_devices),
-                value = formatter.format(stats.uniqueDevices),
-                icon = Icons.Outlined.Devices,
-                accentColor = MaterialTheme.colorScheme.tertiary,
-                subtext = null,
+            val blockedPct = String.format(Locale.US, "%.1f%%", stats.blockedPercentage)
+            ModernStatCard(
+                title = stringResource(R.string.stat_blocked_requests),
+                value = formatter.format(stats.blockedRequests),
+                icon = Icons.Rounded.Shield,
+                accentColor = StatusBlockedRed,
+                subtext = "Ancaman Dicegah",
+                badgeText = "$blockedPct Blokir",
                 modifier = Modifier.weight(1f)
             )
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            val blockedPct = String.format(Locale.US, "%.1f%%", stats.blockedPercentage)
-            StatCard(
-                title = stringResource(R.string.stat_blocked_requests),
-                value = formatter.format(stats.blockedRequests),
-                icon = Icons.Outlined.Block,
-                accentColor = StatusBlockedRed,
-                subtext = blockedPct,
-                modifier = Modifier.weight(1f)
-            )
             val allowedPct = String.format(Locale.US, "%.1f%%", stats.allowedPercentage)
-            StatCard(
+            ModernStatCard(
                 title = stringResource(R.string.stat_allowed_requests),
                 value = formatter.format(stats.allowedRequests),
-                icon = Icons.Outlined.CheckCircle,
+                icon = Icons.Rounded.CheckCircle,
                 accentColor = StatusAllowedGreen,
-                subtext = allowedPct,
+                subtext = "Lalu Lintas Bersih",
+                badgeText = "$allowedPct Aman",
+                modifier = Modifier.weight(1f)
+            )
+            ModernStatCard(
+                title = stringResource(R.string.stat_unique_devices),
+                value = formatter.format(stats.uniqueDevices),
+                icon = Icons.Rounded.Hub,
+                accentColor = StatusInfoBlue,
+                subtext = "Klien Terhubung",
+                badgeText = null,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -84,41 +90,40 @@ fun StatsGrid(
 }
 
 @Composable
-fun StatCard(
+fun ModernStatCard(
     title: String,
     value: String,
     icon: ImageVector,
     accentColor: Color,
-    subtext: String?,
+    subtext: String,
+    badgeText: String?,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            0.8.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
+        )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(6.dp))
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(10.dp))
                         .background(accentColor.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -126,30 +131,49 @@ fun StatCard(
                         imageVector = icon,
                         contentDescription = null,
                         tint = accentColor,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(20.dp)
                     )
+                }
+
+                if (badgeText != null) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(accentColor.copy(alpha = 0.12f))
+                            .border(0.5.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
+                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = badgeText,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = accentColor
+                        )
+                    }
                 }
             }
 
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = value,
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    letterSpacing = (-0.5).sp
                 )
-                if (subtext != null) {
-                    Text(
-                        text = subtext,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = accentColor,
-                        modifier = Modifier.padding(bottom = 3.dp)
-                    )
-                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = subtext,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
             }
         }
     }

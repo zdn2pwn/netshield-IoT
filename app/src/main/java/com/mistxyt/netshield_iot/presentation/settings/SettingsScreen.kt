@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.domain.repository.AppLanguage
 import com.mistxyt.netshield_iot.domain.repository.AppThemeMode
@@ -40,7 +41,6 @@ fun SettingsScreen(
     var restPortInput by rememberSaveable { mutableStateOf(uiState.settings.restPort.toString()) }
     var wsPortInput by rememberSaveable { mutableStateOf(uiState.settings.wsPort.toString()) }
 
-    // Sync input once settings are loaded if field was empty or at initial state
     LaunchedEffect(uiState.settings.esp32Ip) {
         if (ipInput.isBlank() || ipInput == "192.168.1.10" || ipInput == "192.168.43.1") {
             ipInput = uiState.settings.esp32Ip
@@ -54,29 +54,10 @@ fun SettingsScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.settings_screen_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
-        modifier = modifier
-    ) { innerPadding ->
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -84,15 +65,16 @@ fun SettingsScreen(
             // 1. Operating Mode Section
             SettingsSection(
                 title = stringResource(R.string.settings_section_mode),
-                icon = Icons.Outlined.Tune
+                icon = Icons.Rounded.Tune
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -102,7 +84,7 @@ fun SettingsScreen(
                                 Text(
                                     text = stringResource(R.string.settings_demo_mode),
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
@@ -125,7 +107,7 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Sensors,
+                                    imageVector = Icons.Rounded.Sensors,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(18.dp)
@@ -133,7 +115,8 @@ fun SettingsScreen(
                                 Text(
                                     text = stringResource(R.string.settings_live_mode_desc),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -144,15 +127,16 @@ fun SettingsScreen(
             // 2. Hardware Connection Section
             SettingsSection(
                 title = stringResource(R.string.settings_section_hardware),
-                icon = Icons.Outlined.Router
+                icon = Icons.Rounded.Router
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         OutlinedTextField(
                             value = ipInput,
                             onValueChange = { ipInput = it },
@@ -160,7 +144,7 @@ fun SettingsScreen(
                             placeholder = { Text(stringResource(R.string.settings_esp32_ip_hint)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -174,7 +158,7 @@ fun SettingsScreen(
                                 label = { Text(stringResource(R.string.settings_esp32_http_port)) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.weight(1f)
                             )
 
@@ -184,7 +168,7 @@ fun SettingsScreen(
                                 label = { Text(stringResource(R.string.settings_esp32_ws_port)) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -199,7 +183,7 @@ fun SettingsScreen(
                             },
                             enabled = uiState.testState !is TestConnectionState.Testing,
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(12.dp)
                         ) {
                             if (uiState.testState is TestConnectionState.Testing) {
                                 CircularProgressIndicator(
@@ -210,28 +194,54 @@ fun SettingsScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(stringResource(R.string.settings_testing))
                             } else {
-                                Icon(imageVector = Icons.Outlined.NetworkCheck, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(imageVector = Icons.Rounded.NetworkCheck, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.settings_test_connection))
+                                Text(stringResource(R.string.settings_test_connection), fontWeight = FontWeight.Bold)
                             }
                         }
 
                         when (val state = uiState.testState) {
                             is TestConnectionState.Success -> {
-                                Text(
-                                    text = stringResource(R.string.settings_test_success),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = StatusAllowedGreen,
-                                    fontWeight = FontWeight.Medium
-                                )
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = StatusAllowedGreen.copy(alpha = 0.1f),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Icon(Icons.Rounded.CheckCircle, contentDescription = null, tint = StatusAllowedGreen, modifier = Modifier.size(18.dp))
+                                        Text(
+                                            text = stringResource(R.string.settings_test_success),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = StatusAllowedGreen,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                             is TestConnectionState.Failed -> {
-                                Text(
-                                    text = "${stringResource(R.string.settings_test_failed)} (${state.error})",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = StatusBlockedRed,
-                                    fontWeight = FontWeight.Medium
-                                )
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = StatusBlockedRed.copy(alpha = 0.1f),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = StatusBlockedRed, modifier = Modifier.size(18.dp))
+                                        Text(
+                                            text = "${stringResource(R.string.settings_test_failed)} (${state.error})",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = StatusBlockedRed,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                             else -> {}
                         }
@@ -242,15 +252,16 @@ fun SettingsScreen(
             // 3. Appearance Section
             SettingsSection(
                 title = stringResource(R.string.settings_section_appearance),
-                icon = Icons.Outlined.Palette
+                icon = Icons.Rounded.Palette
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         ThemeOptionRow(
                             title = stringResource(R.string.settings_theme_system),
                             selected = uiState.settings.themeMode == AppThemeMode.SYSTEM,
@@ -273,15 +284,16 @@ fun SettingsScreen(
             // 4. Language Section
             SettingsSection(
                 title = stringResource(R.string.settings_section_language),
-                icon = Icons.Outlined.Translate
+                icon = Icons.Rounded.Translate
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         ThemeOptionRow(
                             title = stringResource(R.string.settings_lang_system),
                             selected = uiState.settings.language == AppLanguage.SYSTEM,
@@ -304,15 +316,16 @@ fun SettingsScreen(
             // 5. Data & Local Persistence
             SettingsSection(
                 title = stringResource(R.string.settings_section_storage),
-                icon = Icons.Outlined.Storage
+                icon = Icons.Rounded.Storage
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
                             text = stringResource(R.string.settings_clear_cache_desc),
                             style = MaterialTheme.typography.bodySmall,
@@ -321,11 +334,11 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = { viewModel.clearCache() },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(imageVector = Icons.Outlined.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(imageVector = Icons.Rounded.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.settings_clear_cache))
+                            Text(stringResource(R.string.settings_clear_cache), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -334,45 +347,41 @@ fun SettingsScreen(
             // 6. About NetShield
             SettingsSection(
                 title = stringResource(R.string.settings_section_about),
-                icon = Icons.Outlined.Info
+                icon = Icons.Rounded.Info
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f))
                 ) {
-                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = stringResource(R.string.app_name),
+                            text = "NetShield IoT Gateway Suite",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = stringResource(R.string.settings_about_desc),
+                            text = "Versi 2.0.0 (Production Release)",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                        AboutRow(
-                            label = stringResource(R.string.settings_version_label),
-                            value = stringResource(R.string.settings_version_value)
-                        )
-                        AboutRow(
-                            label = stringResource(R.string.settings_architecture_label),
-                            value = stringResource(R.string.settings_architecture_value)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = stringResource(R.string.settings_security_note),
-                            style = MaterialTheme.typography.labelSmall,
+                            text = "Didukung oleh ESP32 Dual-Core DNS Engine & Cloudflare 1.1.1.3 Family Upstream Security.",
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -382,21 +391,29 @@ private fun SettingsSection(
     icon: ImageVector,
     content: @Composable () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -413,43 +430,21 @@ private fun ThemeOptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .clickable { onClick() }
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
         )
         RadioButton(
             selected = selected,
             onClick = onClick
-        )
-    }
-}
-
-@Composable
-private fun AboutRow(
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

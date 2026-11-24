@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.ui.theme.*
 
@@ -31,23 +32,25 @@ fun StatusBadge(
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(999.dp))
             .background(bgColor)
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+            .border(0.6.dp, contentColor.copy(alpha = 0.25f), RoundedCornerShape(999.dp))
+            .padding(horizontal = 9.dp, vertical = 3.5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(6.dp)
+                .size(7.dp)
                 .clip(CircleShape)
                 .background(contentColor)
         )
         Text(
             text = text,
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = contentColor
+            fontWeight = FontWeight.Bold,
+            color = contentColor,
+            letterSpacing = 0.3.sp
         )
     }
 }
@@ -63,17 +66,18 @@ fun ActionBadge(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(999.dp))
             .background(bgColor)
-            .border(0.5.dp, contentColor.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
-            .padding(horizontal = 7.dp, vertical = 2.dp),
+            .border(0.6.dp, contentColor.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
+            .padding(horizontal = 9.dp, vertical = 3.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = label,
+            text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = contentColor
+            fontWeight = FontWeight.ExtraBold,
+            color = contentColor,
+            letterSpacing = 0.5.sp
         )
     }
 }
@@ -84,9 +88,9 @@ fun DemoModeBanner(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+        border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -132,8 +136,9 @@ fun SectionHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                letterSpacing = (-0.2).sp
             )
             if (subtitle != null) {
                 Text(
@@ -158,25 +163,26 @@ fun EmptyStateView(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 36.dp, horizontal = 24.dp),
+            .padding(vertical = 32.dp, horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(54.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
+                .border(0.8.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,

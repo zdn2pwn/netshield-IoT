@@ -4,18 +4,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
-
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.DnsAction
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
@@ -51,7 +56,7 @@ fun AddDomainDialog(
             Text(
                 text = stringResource(R.string.blocklist_add_domain),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
@@ -61,25 +66,29 @@ fun AddDomainDialog(
                     .padding(vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Domain Input
                 OutlinedTextField(
                     value = domainText,
                     onValueChange = {
                         domainText = it.trim().lowercase()
-                        if (isError) isError = false
+                        isError = false
                     },
                     label = { Text(stringResource(R.string.blocklist_domain_label)) },
                     placeholder = { Text(stringResource(R.string.blocklist_domain_hint)) },
-                    singleLine = true,
                     isError = isError,
-                    supportingText = if (isError) {
-                        { Text(stringResource(R.string.blocklist_domain_error), color = MaterialTheme.colorScheme.error) }
-                    } else null,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                    supportingText = {
+                        if (isError) {
+                            Text(
+                                text = stringResource(R.string.blocklist_domain_error),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Category Selection ExposedDropdown
+                // Category selector dropdown
                 ExposedDropdownMenuBox(
                     expanded = dropdownExpanded,
                     onExpandedChange = { dropdownExpanded = !dropdownExpanded }
@@ -90,10 +99,10 @@ fun AddDomainDialog(
                         readOnly = true,
                         label = { Text(stringResource(R.string.blocklist_category_label)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
+                            .fillMaxWidth()
+                            .menuAnchor()
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownExpanded,
@@ -115,26 +124,27 @@ fun AddDomainDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val clean = domainText.trim().lowercase()
-                    if (clean.isNotBlank() && DOMAIN_REGEX.matches(clean)) {
-                        onConfirm(clean, selectedCategory)
+                    val trimmed = domainText.trim().lowercase()
+                    if (trimmed.isNotBlank() && DOMAIN_REGEX.matches(trimmed)) {
+                        onConfirm(trimmed, selectedCategory)
                     } else {
                         isError = true
                     }
                 },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.action_save))
+                Text(stringResource(R.string.action_save), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(
+            OutlinedButton(
                 onClick = onDismiss,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
         },
+        shape = RoundedCornerShape(20.dp),
         modifier = modifier
     )
 }
@@ -152,7 +162,7 @@ fun ConfirmDeleteDialog(
             Text(
                 text = stringResource(R.string.blocklist_delete_dialog_title),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
@@ -167,19 +177,20 @@ fun ConfirmDeleteDialog(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.action_remove))
+                Text(stringResource(R.string.action_remove), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(
+            OutlinedButton(
                 onClick = onDismiss,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
         },
+        shape = RoundedCornerShape(20.dp),
         modifier = modifier
     )
 }
@@ -218,15 +229,13 @@ fun DnsEventDetailDialog(
                     .padding(vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Domain Card
-                Card(
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    border = androidx.compose.foundation.BorderStroke(0.6.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
                             text = "Domain Tujuan",
                             style = MaterialTheme.typography.labelSmall,
@@ -241,7 +250,6 @@ fun DnsEventDetailDialog(
                     }
                 }
 
-                // Metadata Rows
                 DetailItemRow(label = "Status Tindakan", value = if (isBlocked) "DIBLOKIR (Proteksi Aktif)" else "DIIZINKAN")
                 DetailItemRow(label = "Kategori", value = event.category)
                 DetailItemRow(label = "IP Klien", value = event.clientIp)
@@ -250,17 +258,17 @@ fun DnsEventDetailDialog(
                 DetailItemRow(label = "Mesin Filter", value = event.source)
 
                 if (isBlocked) {
-                    Card(
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                        )
+                        shape = RoundedCornerShape(10.dp),
+                        color = StatusBlockedRed.copy(alpha = 0.08f),
+                        border = androidx.compose.foundation.BorderStroke(0.6.dp, StatusBlockedRed.copy(alpha = 0.3f))
                     ) {
                         Text(
                             text = "Akses dicegat oleh NetShield IoT untuk menjaga keamanan jaringan lokal dari situs terlarang/berbahaya.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            color = StatusBlockedRed,
+                            fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(10.dp)
                         )
                     }
@@ -274,26 +282,33 @@ fun DnsEventDetailDialog(
                         clipboardManager.setText(AnnotatedString(event.domain))
                         copied = true
                     },
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
+                    Icon(imageVector = Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(if (copied) "Disalin!" else "Salin Domain")
                 }
                 Button(
                     onClick = onDismiss,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("Tutup")
                 }
             }
         },
+        shape = RoundedCornerShape(20.dp),
         modifier = modifier
     )
 }
 
 @Composable
-private fun DetailItemRow(label: String, value: String) {
+private fun DetailItemRow(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -304,8 +319,8 @@ private fun DetailItemRow(label: String, value: String) {
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
     }

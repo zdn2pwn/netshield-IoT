@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.presentation.components.DnsEventDetailDialog
 import com.mistxyt.netshield_iot.presentation.components.DnsEventRow
@@ -36,115 +37,140 @@ fun TrafficScreen(
     val uiState by viewModel.uiState.collectAsState()
     val categories = listOf("All", "Malware", "Phishing", "Gambling", "Adult Content", "Ads & Trackers", "Development", "General")
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.traffic_screen_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            val dotColor = if (!uiState.isConnected) {
-                                StatusBlockedRed
-                            } else if (uiState.isPaused) {
-                                StatusWarningAmber
-                            } else {
-                                StatusAllowedGreen
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(dotColor)
-                            )
-                            val statusLabel = if (!uiState.isConnected) {
-                                stringResource(R.string.traffic_ws_disconnected)
-                            } else if (uiState.isPaused) {
-                                stringResource(R.string.traffic_paused_label)
-                            } else {
-                                stringResource(R.string.traffic_live_label)
-                            }
-                            Text(
-                                text = statusLabel,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    // Pause / Resume Stream
-                    IconButton(onClick = { viewModel.togglePause() }) {
-                        Icon(
-                            imageVector = if (uiState.isPaused) Icons.Outlined.PlayArrow else Icons.Outlined.Pause,
-                            contentDescription = if (uiState.isPaused) stringResource(R.string.traffic_resume) else stringResource(R.string.traffic_pause),
-                            tint = if (uiState.isPaused) StatusWarningAmber else MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    // Clear stream
-                    IconButton(onClick = { viewModel.clearEvents() }) {
-                        Icon(
-                            imageVector = Icons.Outlined.DeleteSweep,
-                            contentDescription = stringResource(R.string.action_delete)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
+    Column(
         modifier = modifier
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Ergonomic Stream Status & Quick Action Bar
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp
         ) {
-            // Search Bar & Filter Row
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OutlinedTextField(
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Live Status Pill
+                    val dotColor = if (!uiState.isConnected) {
+                        StatusBlockedRed
+                    } else if (uiState.isPaused) {
+                        StatusWarningAmber
+                    } else {
+                        StatusAllowedGreen
+                    }
+                    val statusLabel = if (!uiState.isConnected) {
+                        stringResource(R.string.traffic_ws_disconnected)
+                    } else if (uiState.isPaused) {
+                        stringResource(R.string.traffic_paused_label)
+                    } else {
+                        stringResource(R.string.traffic_live_label)
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(999.dp),
+                        color = dotColor.copy(alpha = 0.12f),
+                        border = androidx.compose.foundation.BorderStroke(0.6.dp, dotColor.copy(alpha = 0.3f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .background(dotColor)
+                            )
+                            Text(
+                                text = statusLabel,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = dotColor
+                            )
+                        }
+                    }
+
+                    // Action buttons: Pause / Resume & Clear
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        FilledTonalButton(
+                            onClick = { viewModel.togglePause() },
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (uiState.isPaused) Icons.Rounded.PlayArrow else Icons.Rounded.Pause,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = if (uiState.isPaused) "Lanjutkan" else "Jeda",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        IconButton(onClick = { viewModel.clearEvents() }) {
+                            Icon(
+                                imageVector = Icons.Rounded.DeleteSweep,
+                                contentDescription = stringResource(R.string.action_delete),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                // Search Bar
+                TextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
-                    placeholder = { Text(stringResource(R.string.traffic_search_hint)) },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.traffic_search_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.Search,
+                            imageVector = Icons.Rounded.Search,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Clear,
-                                    contentDescription = null,
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription = "Hapus",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Action Filter Chips (Blocked by default, All, Allowed)
+                // Segmented Action Filter Pills (Diblokir Saja, Semua, Diizinkan)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -152,52 +178,37 @@ fun TrafficScreen(
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.BLOCKED,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.BLOCKED) },
-                        label = { Text("🛡️ " + stringResource(R.string.traffic_filter_blocked)) },
-                        shape = RoundedCornerShape(8.dp)
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Shield,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = if (uiState.actionFilter == TrafficFilterAction.BLOCKED) StatusBlockedRed else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        label = { Text("Diblokir Saja", fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp)
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALL,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
-                        label = { Text(stringResource(R.string.traffic_filter_all)) },
-                        shape = RoundedCornerShape(8.dp)
+                        label = { Text("Semua", fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp)
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALLOWED,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.ALLOWED) },
-                        label = { Text(stringResource(R.string.traffic_filter_allowed)) },
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-
-                // If Blocked filter is active, show informative banner to suppress noise
-                if (uiState.actionFilter == TrafficFilterAction.BLOCKED) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Menyembunyikan log biasa agar tidak bising.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.CheckCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = if (uiState.actionFilter == TrafficFilterAction.ALLOWED) StatusAllowedGreen else MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            TextButton(
-                                onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Text("Tampilkan Semua", style = MaterialTheme.typography.labelSmall)
-                            }
-                        }
-                    }
+                        },
+                        label = { Text("Diizinkan", fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp)
+                    )
                 }
 
                 // Horizontal Category Chips
@@ -212,59 +223,70 @@ fun TrafficScreen(
                             selected = uiState.categoryFilter == category,
                             onClick = { viewModel.setCategoryFilter(category) },
                             label = { Text(category, style = MaterialTheme.typography.labelSmall) },
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                    }
-                }
-            }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Live Events List
-            val filtered = uiState.filteredEvents
-            if (filtered.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    EmptyStateView(
-                        icon = Icons.Outlined.SearchOff,
-                        message = if (uiState.actionFilter == TrafficFilterAction.BLOCKED)
-                            "Belum ada domain terlarang yang diblokir saat ini."
-                        else
-                            stringResource(R.string.traffic_empty_state)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.traffic_events_count, filtered.size),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    items(
-                        items = filtered,
-                        key = { it.id }
-                    ) { event ->
-                        DnsEventRow(
-                            event = event,
-                            onClick = { viewModel.selectEvent(event) }
+                            shape = RoundedCornerShape(999.dp)
                         )
                     }
                 }
             }
         }
 
-        // Event Detail Dialog
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+        // Live Events List
+        val filtered = uiState.filteredEvents
+        if (filtered.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EmptyStateView(
+                    icon = Icons.Rounded.Insights,
+                    message = stringResource(R.string.traffic_empty_state)
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Aktivitas Terpantau (${filtered.size})",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (uiState.actionFilter == TrafficFilterAction.BLOCKED) {
+                            Text(
+                                text = "Log normal disembunyikan",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+
+                items(
+                    items = filtered,
+                    key = { it.id }
+                ) { event ->
+                    DnsEventRow(
+                        event = event,
+                        onClick = { viewModel.selectEvent(event) }
+                    )
+                }
+            }
+        }
+
+        // DNS Event Detail Modal Dialog
         uiState.selectedEvent?.let { selected ->
             DnsEventDetailDialog(
                 event = selected,

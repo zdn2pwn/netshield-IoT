@@ -1,14 +1,15 @@
 package com.mistxyt.netshield_iot.presentation.devices
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Sort
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.Device
@@ -34,14 +36,14 @@ import com.mistxyt.netshield_iot.ui.theme.StatusBlockedRed
 import java.text.NumberFormat
 import java.util.Locale
 
-/** Returns the Material icon that best represents a device type. */
+/** Returns the natural rounded icon for each device category. */
 fun deviceTypeIcon(type: DeviceType): ImageVector = when (type) {
-    DeviceType.SMARTPHONE -> Icons.Outlined.Smartphone
-    DeviceType.TABLET     -> Icons.Outlined.TabletAndroid
-    DeviceType.LAPTOP     -> Icons.Outlined.Laptop
-    DeviceType.ROUTER     -> Icons.Outlined.Router
-    DeviceType.IOT        -> Icons.Outlined.DevicesOther
-    DeviceType.UNKNOWN    -> Icons.Outlined.DeviceUnknown
+    DeviceType.SMARTPHONE -> Icons.Rounded.Smartphone
+    DeviceType.TABLET     -> Icons.Rounded.TabletAndroid
+    DeviceType.LAPTOP     -> Icons.Rounded.Laptop
+    DeviceType.ROUTER     -> Icons.Rounded.Router
+    DeviceType.IOT        -> Icons.Rounded.Hub
+    DeviceType.UNKNOWN    -> Icons.Rounded.Devices
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,38 +58,64 @@ fun DevicesScreen(
     val editingDevice by viewModel.editingDevice.collectAsState()
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Ergonomic Device Header & Filter Bar
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Column {
                         Text(
-                            text = stringResource(R.string.devices_screen_title),
-                            style = MaterialTheme.typography.titleLarge,
+                            text = "Perangkat Terhubung",
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${uiState.devices.size} devices observed",
+                            text = "${uiState.devices.size} Perangkat Terdeteksi di Jaringan Wi-Fi",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                },
-                actions = {
+
+                    // Sort Button & Dropdown
                     Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
+                        FilledTonalButton(
+                            onClick = { sortMenuExpanded = true },
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.Sort,
-                                contentDescription = stringResource(R.string.devices_sort_label),
-                                tint = MaterialTheme.colorScheme.primary
+                                imageVector = Icons.AutoMirrored.Rounded.Sort,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Text("Urutkan", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                         }
+
                         DropdownMenu(
                             expanded = sortMenuExpanded,
                             onDismissRequest = { sortMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Rounded.Numbers, contentDescription = null) },
                                 text = { Text(stringResource(R.string.devices_sort_requests)) },
                                 onClick = {
                                     viewModel.onSortOptionChange(DeviceSortOption.MOST_REQUESTS)
@@ -95,6 +123,7 @@ fun DevicesScreen(
                                 }
                             )
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Rounded.Shield, contentDescription = null) },
                                 text = { Text(stringResource(R.string.devices_sort_blocked)) },
                                 onClick = {
                                     viewModel.onSortOptionChange(DeviceSortOption.MOST_BLOCKED)
@@ -102,6 +131,7 @@ fun DevicesScreen(
                                 }
                             )
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Rounded.Schedule, contentDescription = null) },
                                 text = { Text(stringResource(R.string.devices_sort_recent)) },
                                 onClick = {
                                     viewModel.onSortOptionChange(DeviceSortOption.MOST_RECENT)
@@ -109,6 +139,7 @@ fun DevicesScreen(
                                 }
                             )
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Rounded.Dns, contentDescription = null) },
                                 text = { Text(stringResource(R.string.devices_sort_ip)) },
                                 onClick = {
                                     viewModel.onSortOptionChange(DeviceSortOption.IP_ADDRESS)
@@ -117,141 +148,106 @@ fun DevicesScreen(
                             )
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            // Search Bar
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                OutlinedTextField(
+                }
+
+                // Modern Search Bar
+                TextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
-                    placeholder = { Text(stringResource(R.string.devices_search_hint)) },
+                    placeholder = {
+                        Text(
+                            "Cari nama perangkat, IP, atau model...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.Search,
+                            imageVector = Icons.Rounded.Search,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Clear,
-                                    contentDescription = null,
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription = "Hapus",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
-            val sorted = uiState.sortedFilteredDevices
-            if (sorted.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    EmptyStateView(
-                        icon = Icons.Outlined.DevicesOther,
-                        message = stringResource(R.string.devices_empty)
+        val sorted = uiState.sortedFilteredDevices
+        if (sorted.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EmptyStateView(
+                    icon = Icons.Rounded.Hub,
+                    message = stringResource(R.string.devices_empty)
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(
+                    items = sorted,
+                    key = { it.id }
+                ) { device ->
+                    DeviceCard(
+                        device = device,
+                        onClick = { viewModel.selectDevice(device) }
                     )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    text = stringResource(R.string.devices_disclaimer),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    items(
-                        items = sorted,
-                        key = { it.id }
-                    ) { device ->
-                        DeviceCard(
-                            device = device,
-                            onClick = { viewModel.selectDevice(device) }
-                        )
-                    }
                 }
             }
         }
+    }
 
-        // Bottom sheet for device detail
-        selectedDevice?.let { dev ->
-            // Always reflect latest data from the live list
-            val latestDev = uiState.devices.find { it.id == dev.id } ?: dev
-            DeviceDetailBottomSheet(
-                device = latestDev,
-                queries = selectedQueries,
-                onDismiss = { viewModel.dismissDeviceDetails() },
-                onEditAlias = { viewModel.showEditDialog(latestDev) },
-                onTogglePause = { viewModel.toggleInternetPause(latestDev) }
-            )
-        }
+    // Bottom sheet for device detail
+    selectedDevice?.let { dev ->
+        val latestDev = uiState.devices.find { it.id == dev.id } ?: dev
+        DeviceDetailBottomSheet(
+            device = latestDev,
+            queries = selectedQueries,
+            onDismiss = { viewModel.dismissDeviceDetails() },
+            onEditAlias = { viewModel.showEditDialog(latestDev) },
+            onTogglePause = { viewModel.toggleInternetPause(latestDev) }
+        )
+    }
 
-        // Edit alias/type dialog
-        editingDevice?.let { dev ->
-            EditDeviceDialog(
-                device = dev,
-                onConfirm = { name, type ->
-                    viewModel.updateDeviceAlias(dev, name, type)
-                    viewModel.hideEditDialog()
-                },
-                onDismiss = { viewModel.hideEditDialog() }
-            )
-        }
+    // Edit alias/type dialog
+    editingDevice?.let { dev ->
+        EditDeviceDialog(
+            device = dev,
+            onConfirm = { name, type ->
+                viewModel.updateDeviceAlias(dev, name, type)
+                viewModel.hideEditDialog()
+            },
+            onDismiss = { viewModel.hideEditDialog() }
+        )
     }
 }
 
@@ -266,28 +262,29 @@ fun DeviceCard(
     modifier: Modifier = Modifier
 ) {
     val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+    val isPaused = device.isInternetPaused
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (device.isInternetPaused)
-                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.18f)
+            containerColor = if (isPaused)
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
             else
                 MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            if (device.isInternetPaused) StatusBlockedRed.copy(alpha = 0.4f)
-            else MaterialTheme.colorScheme.outlineVariant
+            0.8.dp,
+            if (isPaused) StatusBlockedRed.copy(alpha = 0.4f)
+            else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Header: icon, name, badges
             Row(
@@ -297,40 +294,40 @@ fun DeviceCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    // Device type icon
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                if (isPaused) StatusBlockedRed.copy(alpha = 0.12f)
+                                else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = deviceTypeIcon(device.deviceType),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(22.dp)
+                            tint = if (isPaused) StatusBlockedRed else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        // Display name (alias > detected model > IP fallback)
                         Text(
                             text = device.displayName,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        // Show IP as subtitle (and detected model if different from displayName)
                         val subtitle = buildString {
                             append(device.ipAddress)
                             if (!device.detectedModel.isNullOrBlank() &&
                                 device.detectedModel != device.displayName) {
-                                append("  •  ${device.detectedModel}")
+                                append(" • ${device.detectedModel}")
                             }
                         }
                         Text(
@@ -347,38 +344,43 @@ fun DeviceCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    // Paused badge
-                    if (device.isInternetPaused) {
+                    if (isPaused) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(StatusBlockedRed.copy(alpha = 0.15f))
-                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(StatusBlockedRed.copy(alpha = 0.12f))
+                                .border(0.6.dp, StatusBlockedRed.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
                                 text = "PAUSED",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.ExtraBold,
                                 color = StatusBlockedRed
                             )
                         }
                     } else {
-                        // Block ratio badge
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
+                                .clip(RoundedCornerShape(999.dp))
                                 .background(
                                     if (device.blockedCount > 0)
-                                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
+                                        StatusBlockedRed.copy(alpha = 0.1f)
                                     else
                                         MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                .border(
+                                    0.5.dp,
+                                    if (device.blockedCount > 0) StatusBlockedRed.copy(alpha = 0.3f)
+                                    else MaterialTheme.colorScheme.outlineVariant,
+                                    RoundedCornerShape(999.dp)
                                 )
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "${device.blockRatioPercentage}% blocked",
+                                text = "${device.blockRatioPercentage}% Blokir",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Bold,
                                 color = if (device.blockedCount > 0) StatusBlockedRed
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -386,27 +388,27 @@ fun DeviceCard(
                     }
 
                     Icon(
-                        imageVector = Icons.Outlined.ChevronRight,
+                        imageVector = Icons.Rounded.ChevronRight,
                         contentDescription = "Detail",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 thickness = 0.8.dp
             )
 
-            // Metrics row
+            // Metrics row: 3 balanced tiles
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                MetricColumn(label = stringResource(R.string.devices_total_queries), value = formatter.format(device.requestCount))
-                MetricColumn(label = stringResource(R.string.devices_blocked_queries), value = formatter.format(device.blockedCount), valueColor = StatusBlockedRed)
-                MetricColumn(label = stringResource(R.string.devices_last_seen), value = DateTimeHelper.formatWibTime(device.lastActivity))
+                MetricColumn(label = "Total Kueri", value = formatter.format(device.requestCount))
+                MetricColumn(label = "Kueri Diblokir", value = formatter.format(device.blockedCount), valueColor = StatusBlockedRed)
+                MetricColumn(label = "Terakhir Aktif", value = DateTimeHelper.formatWibTime(device.lastActivity))
             }
         }
     }
@@ -419,8 +421,18 @@ private fun MetricColumn(
     valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = valueColor)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 11.sp
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = valueColor
+        )
     }
 }
 
@@ -448,7 +460,7 @@ fun DeviceDetailBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         dragHandle = { BottomSheetDefaults.DragHandle() },
         containerColor = MaterialTheme.colorScheme.surface
     ) {
@@ -456,10 +468,10 @@ fun DeviceDetailBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // ── Header ──────────────────────────────────────────────────────
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -472,8 +484,8 @@ fun DeviceDetailBottomSheet(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .size(50.dp)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -481,7 +493,7 @@ fun DeviceDetailBottomSheet(
                             imageVector = deviceTypeIcon(device.deviceType),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                     Column {
@@ -493,17 +505,16 @@ fun DeviceDetailBottomSheet(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        // Show detected OS/model
                         if (!device.detectedModel.isNullOrBlank()) {
                             Text(
-                                text = device.detectedModel,
+                                text = "Model: ${device.detectedModel}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                fontWeight = FontWeight.Medium
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                         Text(
-                            text = "${device.ipAddress}  •  MAC: ${device.macAddress ?: "Dynamic (DHCP)"}",
+                            text = "${device.ipAddress} • MAC: ${device.macAddress ?: "Dynamic (DHCP)"}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -512,14 +523,14 @@ fun DeviceDetailBottomSheet(
 
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
+                        .clip(RoundedCornerShape(999.dp))
                         .background(
                             if (device.blockedCount > 0)
-                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
+                                StatusBlockedRed.copy(alpha = 0.1f)
                             else
                                 MaterialTheme.colorScheme.surfaceVariant
                         )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = 9.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${device.blockRatioPercentage}% Blokir",
@@ -530,77 +541,76 @@ fun DeviceDetailBottomSheet(
                 }
             }
 
-            // ── Action buttons: Edit Alias & Internet Pause ──────────────
+            // Action buttons: Edit Alias & Internet Pause
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
                     onClick = onEditAlias,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Edit,
+                        imageVector = Icons.Rounded.Edit,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text("Edit Alias")
+                    Text("Edit Nama")
                 }
 
-                // Internet Pause toggle button
                 val pauseColor = if (device.isInternetPaused) StatusBlockedRed else StatusAllowedGreen
                 Button(
                     onClick = onTogglePause,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.weight(1.2f),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = pauseColor.copy(alpha = 0.15f),
-                        contentColor = pauseColor
+                        containerColor = if (device.isInternetPaused) StatusBlockedRed else MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Icon(
-                        imageVector = if (device.isInternetPaused) Icons.Outlined.PlayArrow else Icons.Outlined.Block,
+                        imageVector = if (device.isInternetPaused) Icons.Rounded.PlayArrow else Icons.Rounded.Block,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text(if (device.isInternetPaused) "Resume" else "Pause Internet")
+                    Text(if (device.isInternetPaused) "Lanjutkan Internet" else "Jeda Internet")
                 }
             }
 
-            // Internet Pause warning
+            // Internet Pause warning if paused
             if (device.isInternetPaused) {
-                Card(
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = StatusBlockedRed.copy(alpha = 0.08f)),
-                    border = androidx.compose.foundation.BorderStroke(0.5.dp, StatusBlockedRed.copy(alpha = 0.3f))
+                    shape = RoundedCornerShape(12.dp),
+                    color = StatusBlockedRed.copy(alpha = 0.08f),
+                    border = androidx.compose.foundation.BorderStroke(0.6.dp, StatusBlockedRed.copy(alpha = 0.3f))
                 ) {
                     Row(
-                        modifier = Modifier.padding(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Outlined.Warning, contentDescription = null, tint = StatusBlockedRed, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Rounded.Warning, contentDescription = null, tint = StatusBlockedRed, modifier = Modifier.size(18.dp))
                         Text(
-                            text = "Internet diblokir total — semua kueri DNS dikembalikan 0.0.0.0",
+                            text = "Akses internet perangkat ini sedang dijeda (seluruh DNS diarahkan ke 0.0.0.0).",
                             style = MaterialTheme.typography.bodySmall,
-                            color = StatusBlockedRed
+                            color = StatusBlockedRed,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
             }
 
-            // ── Metric Summary Cards ─────────────────────────────────────
+            // Metric Summary Cards
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCard("Total Kueri", formatter.format(device.requestCount), Modifier.weight(1f))
-                StatCard("Diizinkan", formatter.format(device.allowedCount), Modifier.weight(1f), StatusAllowedGreen)
-                StatCard("Diblokir", formatter.format(device.blockedCount), Modifier.weight(1f), StatusBlockedRed)
+                StatCardTile("Total Kueri", formatter.format(device.requestCount), Modifier.weight(1f))
+                StatCardTile("Diizinkan", formatter.format(device.allowedCount), Modifier.weight(1f), StatusAllowedGreen)
+                StatCardTile("Diblokir", formatter.format(device.blockedCount), Modifier.weight(1f), StatusBlockedRed)
             }
 
             // Last active
@@ -612,7 +622,7 @@ fun DeviceDetailBottomSheet(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
 
-            // ── Query Log ────────────────────────────────────────────────
+            // Query Log Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -621,13 +631,13 @@ fun DeviceDetailBottomSheet(
                 Text(
                     text = "Riwayat Akses Domain (${displayedQueries.size})",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold
                 )
                 FilterChip(
                     selected = filterBlockedOnly,
                     onClick = { filterBlockedOnly = !filterBlockedOnly },
                     label = { Text("Hanya Diblokir", style = MaterialTheme.typography.labelSmall) },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(999.dp)
                 )
             }
 
@@ -635,7 +645,7 @@ fun DeviceDetailBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(130.dp),
+                        .height(110.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -649,8 +659,8 @@ fun DeviceDetailBottomSheet(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 260.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                        .heightIn(max = 240.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(
                         items = displayedQueries,
@@ -661,7 +671,7 @@ fun DeviceDetailBottomSheet(
                 }
             }
 
-            // ── Bottom action buttons ─────────────────────────────────────
+            // Bottom action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -669,16 +679,16 @@ fun DeviceDetailBottomSheet(
                 OutlinedButton(
                     onClick = { clipboardManager.setText(AnnotatedString(device.ipAddress)) },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(imageVector = Icons.Outlined.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Salin IP")
                 }
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("Tutup")
                 }
@@ -688,20 +698,21 @@ fun DeviceDetailBottomSheet(
 }
 
 @Composable
-private fun StatCard(
+private fun StatCardTile(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
     valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface
 ) {
-    Card(
+    Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        border = androidx.compose.foundation.BorderStroke(0.6.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = valueColor)
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = valueColor)
         }
     }
 }
@@ -724,10 +735,10 @@ fun EditDeviceDialog(
     val deviceTypeLabels = mapOf(
         DeviceType.SMARTPHONE to "Smartphone",
         DeviceType.TABLET      to "Tablet",
-        DeviceType.LAPTOP      to "Laptop / PC",
+        DeviceType.LAPTOP      to "Laptop / Komputer",
         DeviceType.ROUTER      to "Router / Gateway",
-        DeviceType.IOT         to "IoT / Smart Device",
-        DeviceType.UNKNOWN     to "Unknown"
+        DeviceType.IOT         to "Smart IoT Device",
+        DeviceType.UNKNOWN     to "Lainnya"
     )
 
     AlertDialog(
@@ -737,26 +748,38 @@ fun EditDeviceDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                // Show detected model as hint
                 if (!device.detectedModel.isNullOrBlank()) {
-                    Text(
-                        text = "Terdeteksi sebagai: ${device.detectedModel}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Rounded.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                            Text(
+                                text = "Terdeteksi: ${device.detectedModel}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
 
                 OutlinedTextField(
                     value = nameText,
                     onValueChange = { nameText = it },
-                    label = { Text("Nama / Alias") },
+                    label = { Text("Nama / Alias Kustom") },
                     placeholder = { Text(device.displayName) },
                     singleLine = true,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Device type dropdown
                 ExposedDropdownMenuBox(
                     expanded = typeMenuExpanded,
                     onExpandedChange = { typeMenuExpanded = !typeMenuExpanded }
@@ -767,7 +790,7 @@ fun EditDeviceDialog(
                         readOnly = true,
                         label = { Text("Tipe Perangkat") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeMenuExpanded) },
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor()
@@ -780,13 +803,13 @@ fun EditDeviceDialog(
                             DropdownMenuItem(
                                 text = {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Icon(
                                             imageVector = deviceTypeIcon(type),
                                             contentDescription = null,
-                                            modifier = Modifier.size(18.dp),
+                                            modifier = Modifier.size(20.dp),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                         Text(deviceTypeLabels[type] ?: type.name)
@@ -805,7 +828,7 @@ fun EditDeviceDialog(
         confirmButton = {
             Button(
                 onClick = { onConfirm(nameText, selectedType) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Text("Simpan")
             }
@@ -813,12 +836,12 @@ fun EditDeviceDialog(
         dismissButton = {
             OutlinedButton(
                 onClick = onDismiss,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Text("Batal")
             }
         },
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(20.dp)
     )
 }
 
@@ -832,16 +855,16 @@ fun DeviceQueryRow(
     modifier: Modifier = Modifier
 ) {
     val isBlocked = event.action == DnsAction.BLOCK
-    Card(
+    Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
-        border = androidx.compose.foundation.BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        border = androidx.compose.foundation.BorderStroke(0.6.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -854,7 +877,7 @@ fun DeviceQueryRow(
                 Text(
                     text = event.domain,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     color = if (isBlocked) StatusBlockedRed else MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
