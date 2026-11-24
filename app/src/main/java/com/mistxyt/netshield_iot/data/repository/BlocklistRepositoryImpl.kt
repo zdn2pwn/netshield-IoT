@@ -11,6 +11,7 @@ import com.mistxyt.netshield_iot.domain.repository.BlocklistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,6 +85,50 @@ class BlocklistRepositoryImpl(
                 )
                 blockedDomainDao.insertDomain(BlockedDomainEntity.fromDomain(created))
                 Result.success(created)
+            } else {
+                Result.failure(Exception("HTTP Error: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateBlockedDomain(id: String, domain: String, category: String): Result<BlockedDomain> = withContext(Dispatchers.IO) {
+        val cleanDomain = domain.trim().lowercase()
+        val now = System.currentTimeMillis()
+
+        if (currentSettings.isDemoMode) {
+            val existing = blockedDomainDao.getAllBlockedDomains().map { it.toDomain() }.firstOrNull { it.id == id }
+            val updated = (existing ?: BlockedDomain(id = id, domain = cleanDomain, category = category, source = "Manual Entry", createdAt = now, enabled = true)).copy(
+                domain = cleanDomain,
+                category = category
+            )
+            blockedDomainDao.insertDomain(BlockedDomainEntity.fromDomain(updated))
+            return@withContext Result.success(updated)
+        }
+
+        try {
+            val api = NetworkModule.getApiService(currentSettings.esp32Ip, currentSettings.restPort)
+            val response = api.updateBlockedDomain(
+                id,
+                AddBlocklistRequestDto(
+                    domain = cleanDomain,
+                    category = category,
+                    source = "Manual Entry"
+                )
+            )
+            if (response.isSuccessful && response.body() != null) {
+                val dto = response.body()!!
+                val updated = BlockedDomain(
+                    id = dto.id ?: id,
+                    domain = dto.domain ?: cleanDomain,
+                    category = dto.category ?: category,
+                    source = dto.source ?: "Manual Entry",
+                    createdAt = dto.createdAt ?: now,
+                    enabled = dto.enabled ?: true
+                )
+                blockedDomainDao.insertDomain(BlockedDomainEntity.fromDomain(updated))
+                Result.success(updated)
             } else {
                 Result.failure(Exception("HTTP Error: ${response.code()} ${response.message()}"))
             }

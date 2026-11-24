@@ -77,7 +77,7 @@ fun SystemStatusCard(
                     }
                     Column {
                         Text(
-                            text = "ESP32 DNS Gateway",
+                            text = stringResource(R.string.system_gateway_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -99,7 +99,7 @@ fun SystemStatusCard(
                                     .padding(horizontal = 5.dp, vertical = 1.dp)
                             ) {
                                 Text(
-                                    text = "Port 53",
+                                    text = stringResource(R.string.system_port_53),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -122,15 +122,15 @@ fun SystemStatusCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 StatusMetricTile(
-                    label = "Mesin DNS",
-                    value = if (status.dnsEngineStatus == "ACTIVE") "Aktif (1.1.1.3)" else "Offline",
+                    label = stringResource(R.string.system_dns_engine_label),
+                    value = if (status.dnsEngineStatus == "ACTIVE") stringResource(R.string.system_dns_active) else stringResource(R.string.status_offline),
                     icon = Icons.Rounded.Shield,
                     isSuccess = status.dnsEngineStatus == "ACTIVE",
                     modifier = Modifier.weight(1f)
                 )
                 StatusMetricTile(
-                    label = "WebSocket",
-                    value = if (status.websocketConnected) "Live Stream" else "Terputus",
+                    label = stringResource(R.string.system_websocket_label),
+                    value = if (status.websocketConnected) stringResource(R.string.system_live_stream) else stringResource(R.string.system_disconnected),
                     icon = Icons.Rounded.Sensors,
                     isSuccess = status.websocketConnected,
                     modifier = Modifier.weight(1f)
@@ -142,7 +142,7 @@ fun SystemStatusCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 StatusMetricTile(
-                    label = "Operasional",
+                    label = stringResource(R.string.system_uptime_label),
                     value = status.formattedUptime,
                     icon = Icons.Rounded.PowerSettingsNew,
                     isSuccess = null,
@@ -152,7 +152,7 @@ fun SystemStatusCard(
                     DateTimeHelper.formatWibTime(status.lastSyncTimestamp)
                 } else "--:--"
                 StatusMetricTile(
-                    label = "Sinkronisasi",
+                    label = stringResource(R.string.system_sync_label),
                     value = syncFormatted,
                     icon = Icons.Rounded.Sync,
                     isSuccess = null,
@@ -179,7 +179,7 @@ fun SystemStatusCard(
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = "Upstream DNS: Cloudflare Security 1.1.1.3 (Malware & Phishing Filter)",
+                        text = stringResource(R.string.system_upstream_dns),
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

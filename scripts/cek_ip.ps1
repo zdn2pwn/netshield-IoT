@@ -2,6 +2,11 @@
 #       NETSHIELD IoT - ESP32-C3 SERIAL MONITOR & IP FINDER
 # ======================================================================
 
+param(
+    [string]$WifiSsid = "",
+    [string]$WifiPassword = ""
+)
+
 $Host.UI.RawUI.WindowTitle = 'NETSHIELD IoT - ESP32 IP Finder & Live Monitor'
 
 Write-Host ""
@@ -9,17 +14,50 @@ Write-Host "====================================================================
 Write-Host "          NETSHIELD IoT - ESP32-C3 SERIAL MONITOR & IP FINDER         " -ForegroundColor Yellow
 Write-Host "======================================================================" -ForegroundColor Cyan
 Write-Host ""
+
+# ------------------------------------------------------------------
+# 0. (Opsional) Ganti kredensial Wi-Fi ESP32
+# ------------------------------------------------------------------
+if (-not $WifiSsid) {
+    $ans = Read-Host "Ganti kredensial Wi-Fi ESP32 (SSID/Password)? (y/N)"
+    if ($ans -match '^[yY]') {
+        $WifiSsid = Read-Host "Masukkan SSID Wi-Fi baru"
+        $secure = Read-Host "Masukkan Password Wi-Fi baru" -AsSecureString
+        $WifiPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
+    }
+}
+
+if ($WifiSsid -and $WifiPassword) {
+    $inoPath = Join-Path $PSScriptRoot "..\firmware\esp32_c3_netshield\esp32_c3_netshield.ino"
+    $inoPath = [System.IO.Path]::GetFullPath($inoPath)
+    if (Test-Path $inoPath) {
+        try {
+            $content = Get-Content $inoPath -Raw
+            $content = [regex]::Replace($content, 'const char\*\s*WIFI_SSID\s*=\s*"[^"]*";', "const char* WIFI_SSID     = `"$WifiSsid`";")
+            $content = [regex]::Replace($content, 'const char\*\s*WIFI_PASSWORD\s*=\s*"[^"]*";', "const char* WIFI_PASSWORD = `"$WifiPassword`";")
+            Set-Content -Path $inoPath -Value $content -NoNewline
+            Write-Host "[OK] Kredensial Wi-Fi di firmware diperbarui:" -ForegroundColor Green
+            Write-Host "     SSID     : $WifiSsid" -ForegroundColor White
+            Write-Host "     Password : ********" -ForegroundColor White
+            Write-Host "[INFO] Silakan compile & upload ulang firmware ke ESP32 agar perubahan diterapkan." -ForegroundColor Yellow
+            Write-Host ""
+        } catch {
+            Write-Host "[WARN] Gagal memperbarui firmware: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "[WARN] File firmware tidak ditemukan: $inoPath" -ForegroundColor Yellow
+    }
+}
+
 Write-Host "Sedang mendeteksi port COM ESP32-C3..." -ForegroundColor White
 
 function Get-TargetPort {
-    # 1. Cek port COM yang aktif
     $ports = [System.IO.Ports.SerialPort]::GetPortNames()
     if ($ports -contains 'COM3') { return 'COM3' }
     if ($ports.Count -gt 0) { return $ports[0] }
 
-    # 2. Cek lewat PnP Device jika belum ketemu
-    $dev = Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue | Where-Object { 
-        $_.FriendlyName -match '\((COM\d+)\)' -and $_.Status -eq 'OK' 
+    $dev = Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue | Where-Object {
+        $_.FriendlyName -match '\((COM\d+)\)' -and $_.Status -eq 'OK'
     }
     if ($dev) {
         if ($dev.FriendlyName -match '\((COM\d+)\)') { return $matches[1] }
@@ -49,7 +87,6 @@ try {
     $serial.ReadTimeout = 1000
     $serial.Open()
 
-    # Kirim newline agar ESP32 langsung merespons dengan IP tanpa menunggu
     Start-Sleep -Milliseconds 200
     try { $serial.WriteLine("") } catch {}
 
@@ -82,7 +119,6 @@ try {
                 }
             }
         } catch [System.TimeoutException] {
-            # Setiap timeout 1 detik jika IP belum muncul, picu kembali dengan newline
             if (-not $ipFound) {
                 try { $serial.WriteLine("") } catch {}
             }

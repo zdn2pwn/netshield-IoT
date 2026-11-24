@@ -122,6 +122,13 @@ void addDefaultRules() {
   blocklist[blocklistCount++] = {"blk-30", "applovin.com", "Ads & Trackers", "Threat Intel", millis()};
 }
 
+int findBlockRuleById(const String& id) {
+  for (int i = 0; i < blocklistCount; i++) {
+    if (blocklist[i].id == id) return i;
+  }
+  return -1;
+}
+
 String classifySensitiveDomain(const String& d) {
   // Adult / Pornografi pattern detection
   if (d.indexOf("bokep") >= 0 || d.indexOf("porn") >= 0 || d.indexOf("xxx") >= 0 ||
@@ -605,6 +612,62 @@ void setupRestRoutes() {
     String resStr;
     serializeJson(resp, resStr);
     restServer.send(201, "application/json", resStr);
+  });
+
+  // 7b. Delete Blocklist Item
+  restServer.on("/api/v1/blocklist/*", HTTP_DELETE, []() {
+    String uri = restServer.uri();
+    int lastSlash = uri.lastIndexOf('/');
+    String id = (lastSlash >= 0) ? uri.substring(lastSlash + 1) : "";
+    id.trim();
+    int idx = findBlockRuleById(id);
+    if (idx < 0) {
+      restServer.send(404, "application/json", "{\"error\":\"Rule not found\"}");
+      return;
+    }
+    for (int i = idx; i < blocklistCount - 1; i++) {
+      blocklist[i] = blocklist[i + 1];
+    }
+    blocklistCount--;
+    restServer.send(200, "application/json", "{\"success\":true}");
+  });
+
+  // 7c. Edit Blocklist Item
+  restServer.on("/api/v1/blocklist/*", HTTP_PUT, []() {
+    String uri = restServer.uri();
+    int lastSlash = uri.lastIndexOf('/');
+    String id = (lastSlash >= 0) ? uri.substring(lastSlash + 1) : "";
+    id.trim();
+    int idx = findBlockRuleById(id);
+    if (idx < 0) {
+      restServer.send(404, "application/json", "{\"error\":\"Rule not found\"}");
+      return;
+    }
+    if (!restServer.hasArg("plain")) {
+      restServer.send(400, "application/json", "{\"error\":\"Missing body\"}");
+      return;
+    }
+    JsonDocument doc;
+    DeserializationError err = deserializeJson(doc, restServer.arg("plain"));
+    if (err) {
+      restServer.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+      return;
+    }
+    String domain = doc["domain"] | "";
+    String category = doc["category"] | "";
+    if (domain.length() > 0) blocklist[idx].domain = domain;
+    if (category.length() > 0) blocklist[idx].category = category;
+
+    JsonDocument resp;
+    resp["id"] = blocklist[idx].id;
+    resp["domain"] = blocklist[idx].domain;
+    resp["category"] = blocklist[idx].category;
+    resp["source"] = blocklist[idx].source;
+    resp["createdAt"] = blocklist[idx].createdAt;
+    resp["enabled"] = true;
+    String resStr;
+    serializeJson(resp, resStr);
+    restServer.send(200, "application/json", resStr);
   });
 
   // 8. Sync Blocklist

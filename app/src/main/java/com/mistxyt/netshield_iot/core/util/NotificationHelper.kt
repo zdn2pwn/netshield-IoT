@@ -130,11 +130,11 @@ object NotificationHelper {
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_netshield_logo)
-            .setContentTitle("🚨 [DIBLOKIR] Akses Situs Terlarang!")
-            .setContentText("$mainDomain ($category) dari $clientIp")
+            .setContentTitle(context.getString(R.string.notification_alert_title))
+            .setContentText(context.getString(R.string.notification_alert_text, mainDomain, category, clientIp))
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("Peringatan Keamanan NetShield:\nAkses ke situs terlarang $mainDomain ($category) berhasil diblokir secara instan!\nPerangkat Klien: $clientIp")
+                    .bigText(context.getString(R.string.notification_alert_big, mainDomain, category, clientIp))
             )
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)

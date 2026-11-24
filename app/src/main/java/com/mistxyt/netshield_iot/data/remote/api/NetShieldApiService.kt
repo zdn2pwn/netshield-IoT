@@ -36,6 +36,12 @@ interface NetShieldApiService {
         @Path("id") id: String
     ): Response<DeleteResponseDto>
 
+    @PUT("api/v1/blocklist/{id}")
+    suspend fun updateBlockedDomain(
+        @Path("id") id: String,
+        @Body request: AddBlocklistRequestDto
+    ): Response<BlockedDomainDto>
+
     @POST("api/v1/blocklist/sync")
     suspend fun syncBlocklist(): Response<SyncResponseDto>
 

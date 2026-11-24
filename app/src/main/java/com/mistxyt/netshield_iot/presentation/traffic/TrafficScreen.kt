@@ -1,6 +1,7 @@
 package com.mistxyt.netshield_iot.presentation.traffic
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.presentation.components.DnsEventDetailDialog
 import com.mistxyt.netshield_iot.presentation.components.DnsEventRow
+import com.mistxyt.netshield_iot.presentation.components.categoryDisplayName
 import com.mistxyt.netshield_iot.presentation.components.EmptyStateView
 import com.mistxyt.netshield_iot.ui.theme.StatusAllowedGreen
 import com.mistxyt.netshield_iot.ui.theme.StatusBlockedRed
@@ -114,7 +116,7 @@ fun TrafficScreen(
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = if (uiState.isPaused) "Lanjutkan" else "Jeda",
+                                text = if (uiState.isPaused) stringResource(R.string.traffic_resume) else stringResource(R.string.traffic_pause),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold
                             )
@@ -153,7 +155,7 @@ fun TrafficScreen(
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Hapus",
+                                    contentDescription = stringResource(R.string.action_delete),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -167,7 +169,9 @@ fun TrafficScreen(
                         focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                         unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                 )
 
                 // Segmented Action Filter Pills (Diblokir Saja, Semua, Diizinkan)
@@ -186,14 +190,16 @@ fun TrafficScreen(
                                 tint = if (uiState.actionFilter == TrafficFilterAction.BLOCKED) StatusBlockedRed else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
-                        label = { Text("Diblokir Saja", fontWeight = FontWeight.SemiBold) },
-                        shape = RoundedCornerShape(999.dp)
+                        label = { Text(stringResource(R.string.traffic_filter_blocked_only), fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.BLOCKED) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALL,
                         onClick = { viewModel.setActionFilter(TrafficFilterAction.ALL) },
-                        label = { Text("Semua", fontWeight = FontWeight.SemiBold) },
-                        shape = RoundedCornerShape(999.dp)
+                        label = { Text(stringResource(R.string.traffic_filter_all), fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.ALL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                     )
                     FilterChip(
                         selected = uiState.actionFilter == TrafficFilterAction.ALLOWED,
@@ -206,8 +212,9 @@ fun TrafficScreen(
                                 tint = if (uiState.actionFilter == TrafficFilterAction.ALLOWED) StatusAllowedGreen else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
-                        label = { Text("Diizinkan", fontWeight = FontWeight.SemiBold) },
-                        shape = RoundedCornerShape(999.dp)
+                        label = { Text(stringResource(R.string.traffic_filter_allowed), fontWeight = FontWeight.SemiBold) },
+                        shape = RoundedCornerShape(999.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.actionFilter == TrafficFilterAction.ALLOWED) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                     )
                 }
 
@@ -222,8 +229,9 @@ fun TrafficScreen(
                         FilterChip(
                             selected = uiState.categoryFilter == category,
                             onClick = { viewModel.setCategoryFilter(category) },
-                            label = { Text(category, style = MaterialTheme.typography.labelSmall) },
-                            shape = RoundedCornerShape(999.dp)
+                            label = { Text(categoryDisplayName(category), style = MaterialTheme.typography.labelSmall) },
+                            shape = RoundedCornerShape(999.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.categoryFilter == category) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                         )
                     }
                 }
@@ -259,14 +267,14 @@ fun TrafficScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Aktivitas Terpantau (${filtered.size})",
+                            text = stringResource(R.string.traffic_events_observed, filtered.size),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         if (uiState.actionFilter == TrafficFilterAction.BLOCKED) {
                             Text(
-                                text = "Log normal disembunyikan",
+                                text = stringResource(R.string.traffic_normal_logs_hidden),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
@@ -295,3 +303,4 @@ fun TrafficScreen(
         }
     }
 }
+

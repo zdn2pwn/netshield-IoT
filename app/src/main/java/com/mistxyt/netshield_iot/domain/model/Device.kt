@@ -37,7 +37,7 @@ data class Device(
     val displayName: String
         get() = customName?.takeIf { it.isNotBlank() }
             ?: detectedModel?.takeIf { it.isNotBlank() }
-            ?: (if (ipAddress.endsWith(".1")) "Host Router / Hotspot" else "Perangkat Wi-Fi ($ipAddress)")
+            ?: (if (ipAddress.endsWith(".1")) "Host Router / Hotspot" else "Wi-Fi Device ($ipAddress)")
 
     val allowedCount: Int
         get() = (requestCount - blockedCount).coerceAtLeast(0)
@@ -45,3 +45,4 @@ data class Device(
     val blockRatioPercentage: Int
         get() = if (requestCount > 0) ((blockedCount.toDouble() / requestCount) * 100).toInt() else 0
 }
+

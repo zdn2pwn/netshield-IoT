@@ -111,6 +111,20 @@ class BlocklistViewModel(
         }
     }
 
+    fun editDomain(id: String, domain: String, category: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            val result = blocklistRepository.updateBlockedDomain(id, domain, category)
+            if (result.isSuccess) {
+                _feedbackMessage.value = "Domain $domain updated"
+            } else {
+                _errorMessage.value = result.exceptionOrNull()?.localizedMessage ?: "Failed to update domain"
+            }
+            _isLoading.value = false
+        }
+    }
+
     fun removeDomain(id: String, domainName: String) {
         viewModelScope.launch {
             _isLoading.value = true

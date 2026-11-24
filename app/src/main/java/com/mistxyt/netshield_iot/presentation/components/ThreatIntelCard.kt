@@ -71,7 +71,7 @@ fun ThreatIntelCard(
                     }
                     Column {
                         Text(
-                            text = "Intelijen Keamanan & Proteksi",
+                            text = stringResource(R.string.threat_intel_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -96,7 +96,7 @@ fun ThreatIntelCard(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Sumber Feeds",
+                        text = stringResource(R.string.threat_intel_sources),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -110,7 +110,7 @@ fun ThreatIntelCard(
 
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Aturan Blokir Aktif",
+                        text = stringResource(R.string.threat_intel_blocked_domains),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -124,7 +124,7 @@ fun ThreatIntelCard(
 
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = "Update Terakhir",
+                        text = stringResource(R.string.threat_intel_last_update),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -139,7 +139,7 @@ fun ThreatIntelCard(
             }
 
             Text(
-                text = "Penyaringan heuristik ganda: Rule lokal ESP32 + Cloudflare Family DNS 1.1.1.3",
+                text = stringResource(R.string.threat_intel_engine_note),
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)

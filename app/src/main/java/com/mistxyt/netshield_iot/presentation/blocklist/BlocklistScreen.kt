@@ -1,6 +1,7 @@
 package com.mistxyt.netshield_iot.presentation.blocklist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +24,10 @@ import com.mistxyt.netshield_iot.R
 import com.mistxyt.netshield_iot.core.util.DateTimeHelper
 import com.mistxyt.netshield_iot.domain.model.BlockedDomain
 import com.mistxyt.netshield_iot.presentation.components.AddDomainDialog
+import com.mistxyt.netshield_iot.presentation.components.EditDomainDialog
 import com.mistxyt.netshield_iot.presentation.components.ConfirmDeleteDialog
 import com.mistxyt.netshield_iot.presentation.components.EmptyStateView
+import com.mistxyt.netshield_iot.presentation.components.categoryDisplayName
 import com.mistxyt.netshield_iot.ui.theme.StatusBlockedBgLight
 import com.mistxyt.netshield_iot.ui.theme.StatusBlockedRed
 
@@ -36,6 +39,7 @@ fun BlocklistScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var domainToEdit by remember { mutableStateOf<BlockedDomain?>(null) }
     var domainToDelete by remember { mutableStateOf<BlockedDomain?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -65,7 +69,7 @@ fun BlocklistScreen(
                 },
                 text = {
                     Text(
-                        text = "Tambah Domain",
+                        text = stringResource(R.string.blocklist_add_domain),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -98,13 +102,13 @@ fun BlocklistScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Daftar Blokir Domain",
+                                text = stringResource(R.string.blocklist_screen_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "${uiState.domains.size} Aturan Proteksi Tersinkronisasi ke ESP32",
+                                text = stringResource(R.string.blocklist_rules_synced, uiState.domains.size),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -123,7 +127,7 @@ fun BlocklistScreen(
                                     strokeWidth = 2.dp
                                 )
                                 Spacer(Modifier.width(6.dp))
-                                Text("Sinkron...", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.blocklist_syncing), style = MaterialTheme.typography.labelSmall)
                             } else {
                                 Icon(
                                     imageVector = Icons.Rounded.Sync,
@@ -131,7 +135,7 @@ fun BlocklistScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(Modifier.width(6.dp))
-                                Text("Sync ESP32", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.blocklist_sync_action), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -159,7 +163,7 @@ fun BlocklistScreen(
                                 IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                     Icon(
                                         imageVector = Icons.Rounded.Close,
-                                        contentDescription = "Hapus",
+                                        contentDescription = stringResource(R.string.action_delete),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -173,7 +177,9 @@ fun BlocklistScreen(
                             focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                             unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                     )
 
                     // Category Chips
@@ -187,8 +193,9 @@ fun BlocklistScreen(
                             FilterChip(
                                 selected = uiState.selectedCategory == category,
                                 onClick = { viewModel.onCategorySelect(category) },
-                                label = { Text(category, style = MaterialTheme.typography.labelSmall) },
-                                shape = RoundedCornerShape(999.dp)
+                                label = { Text(categoryDisplayName(category), style = MaterialTheme.typography.labelSmall) },
+                                shape = RoundedCornerShape(999.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (uiState.selectedCategory == category) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                             )
                         }
                     }
@@ -223,6 +230,7 @@ fun BlocklistScreen(
                     ) { domainItem ->
                         BlockedDomainCard(
                             domain = domainItem,
+                            onEdit = { domainToEdit = domainItem },
                             onDelete = { domainToDelete = domainItem }
                         )
                     }
@@ -237,6 +245,18 @@ fun BlocklistScreen(
             onConfirm = { domain, category ->
                 viewModel.addDomain(domain, category)
                 showAddDialog = false
+            }
+        )
+    }
+
+    if (domainToEdit != null) {
+        EditDomainDialog(
+            initialDomain = domainToEdit!!.domain,
+            initialCategory = domainToEdit!!.category,
+            onDismiss = { domainToEdit = null },
+            onConfirm = { domain, category ->
+                viewModel.editDomain(domainToEdit!!.id, domain, category)
+                domainToEdit = null
             }
         )
     }
@@ -256,6 +276,7 @@ fun BlocklistScreen(
 @Composable
 fun BlockedDomainCard(
     domain: BlockedDomain,
+    onEdit: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -344,17 +365,31 @@ fun BlockedDomainCard(
                 }
             }
 
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.DeleteOutline,
-                    contentDescription = stringResource(R.string.action_delete),
-                    tint = StatusBlockedRed.copy(alpha = 0.8f),
-                    modifier = Modifier.size(20.dp)
-                )
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IconButton(
+                    onClick = onEdit,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = stringResource(R.string.action_edit),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = stringResource(R.string.action_delete),
+                        tint = StatusBlockedRed.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
 }
+

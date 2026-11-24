@@ -55,7 +55,7 @@ fun DashboardScreen(
         item {
             SectionHeader(
                 title = stringResource(R.string.recent_activity_title),
-                subtitle = "Aktivitas domain yang baru saja diakses",
+                subtitle = stringResource(R.string.recent_activity_subtitle),
                 action = {
                     TextButton(onClick = onNavigateToTraffic) {
                         Text(

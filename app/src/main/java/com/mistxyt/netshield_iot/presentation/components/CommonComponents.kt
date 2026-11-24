@@ -155,6 +155,20 @@ fun SectionHeader(
 }
 
 @Composable
+fun categoryDisplayName(category: String): String = when (category) {
+    "All" -> stringResource(R.string.category_all)
+    "Malware" -> stringResource(R.string.category_malware)
+    "Phishing" -> stringResource(R.string.category_phishing)
+    "Gambling" -> stringResource(R.string.category_gambling)
+    "Adult Content" -> stringResource(R.string.category_adult)
+    "Ads & Trackers" -> stringResource(R.string.category_ads)
+    "Custom" -> stringResource(R.string.category_custom)
+    "Development" -> stringResource(R.string.category_development)
+    "General" -> stringResource(R.string.category_general)
+    else -> category
+}
+
+@Composable
 fun EmptyStateView(
     icon: ImageVector,
     message: String,

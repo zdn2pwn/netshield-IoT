@@ -110,7 +110,127 @@ fun AddDomainDialog(
                     ) {
                         categories.forEach { category ->
                             DropdownMenuItem(
-                                text = { Text(category) },
+                                text = { Text(categoryDisplayName(category)) },
+                                onClick = {
+                                    selectedCategory = category
+                                    dropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val trimmed = domainText.trim().lowercase()
+                    if (trimmed.isNotBlank() && DOMAIN_REGEX.matches(trimmed)) {
+                        onConfirm(trimmed, selectedCategory)
+                    } else {
+                        isError = true
+                    }
+                },
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(R.string.action_save), fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun EditDomainDialog(
+    initialDomain: String,
+    initialCategory: String,
+    onDismiss: () -> Unit,
+    onConfirm: (domain: String, category: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var domainText by remember { mutableStateOf(initialDomain) }
+    var selectedCategory by remember { mutableStateOf(initialCategory) }
+    var isError by remember { mutableStateOf(false) }
+    var dropdownExpanded by remember { mutableStateOf(false) }
+
+    val categories = listOf(
+        "Malware",
+        "Phishing",
+        "Gambling",
+        "Adult Content",
+        "Ads & Trackers",
+        "Custom"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.blocklist_edit_domain),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                OutlinedTextField(
+                    value = domainText,
+                    onValueChange = {
+                        domainText = it.trim().lowercase()
+                        isError = false
+                    },
+                    label = { Text(stringResource(R.string.blocklist_domain_label)) },
+                    placeholder = { Text(stringResource(R.string.blocklist_domain_hint)) },
+                    isError = isError,
+                    supportingText = {
+                        if (isError) {
+                            Text(
+                                text = stringResource(R.string.blocklist_domain_error),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = dropdownExpanded,
+                    onExpandedChange = { dropdownExpanded = !dropdownExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedCategory,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.blocklist_category_label)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }
+                    ) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(categoryDisplayName(category)) },
                                 onClick = {
                                     selectedCategory = category
                                     dropdownExpanded = false
@@ -215,7 +335,7 @@ fun DnsEventDetailDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Detail Kueri DNS",
+                    text = stringResource(R.string.traffic_detail_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -237,7 +357,7 @@ fun DnsEventDetailDialog(
                 ) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = "Domain Tujuan",
+                            text = stringResource(R.string.traffic_detail_domain),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -250,12 +370,12 @@ fun DnsEventDetailDialog(
                     }
                 }
 
-                DetailItemRow(label = "Status Tindakan", value = if (isBlocked) "DIBLOKIR (Proteksi Aktif)" else "DIIZINKAN")
-                DetailItemRow(label = "Kategori", value = event.category)
-                DetailItemRow(label = "IP Klien", value = event.clientIp)
-                DetailItemRow(label = "Tipe Kueri", value = event.queryType)
-                DetailItemRow(label = "Waktu Akses", value = DateTimeHelper.formatWibFullDateTime(event.timestamp))
-                DetailItemRow(label = "Mesin Filter", value = event.source)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_status), value = if (isBlocked) stringResource(R.string.traffic_detail_blocked_status) else stringResource(R.string.traffic_detail_allowed_status))
+                DetailItemRow(label = stringResource(R.string.traffic_detail_category), value = event.category)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_client_ip), value = event.clientIp)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_query_type), value = event.queryType)
+                DetailItemRow(label = stringResource(R.string.traffic_detail_access_time), value = DateTimeHelper.formatWibFullDateTime(event.timestamp))
+                DetailItemRow(label = stringResource(R.string.traffic_detail_filter_engine), value = event.source)
 
                 if (isBlocked) {
                     Surface(
@@ -265,7 +385,7 @@ fun DnsEventDetailDialog(
                         border = androidx.compose.foundation.BorderStroke(0.6.dp, StatusBlockedRed.copy(alpha = 0.3f))
                     ) {
                         Text(
-                            text = "Akses dicegat oleh NetShield IoT untuk menjaga keamanan jaringan lokal dari situs terlarang/berbahaya.",
+                            text = stringResource(R.string.traffic_detail_blocked_note),
                             style = MaterialTheme.typography.bodySmall,
                             color = StatusBlockedRed,
                             fontWeight = FontWeight.Medium,
@@ -286,13 +406,13 @@ fun DnsEventDetailDialog(
                 ) {
                     Icon(imageVector = Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(if (copied) "Disalin!" else "Salin Domain")
+                    Text(if (copied) stringResource(R.string.action_copied) else stringResource(R.string.action_copy_domain))
                 }
                 Button(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Tutup")
+                    Text(stringResource(R.string.action_close))
                 }
             }
         },

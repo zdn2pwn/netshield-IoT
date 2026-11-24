@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface BlocklistRepository {
     fun getBlockedDomains(): Flow<List<BlockedDomain>>
     suspend fun addBlockedDomain(domain: String, category: String, source: String): Result<BlockedDomain>
+    suspend fun updateBlockedDomain(id: String, domain: String, category: String): Result<BlockedDomain>
     suspend fun removeBlockedDomain(id: String): Result<Unit>
     suspend fun syncWithEsp32(): Result<Int>
     suspend fun refreshBlocklist(): Result<Unit>

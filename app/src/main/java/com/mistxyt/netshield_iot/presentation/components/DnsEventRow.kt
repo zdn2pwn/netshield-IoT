@@ -127,7 +127,7 @@ fun DnsEventRow(
                             color = MaterialTheme.colorScheme.outline
                         )
                         Text(
-                            text = event.category,
+                            text = categoryDisplayName(event.category),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isBlocked) StatusBlockedRed else MaterialTheme.colorScheme.primary,

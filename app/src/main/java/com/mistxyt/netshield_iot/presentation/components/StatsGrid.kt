@@ -46,7 +46,7 @@ fun StatsGrid(
                 value = formatter.format(stats.totalRequests),
                 icon = Icons.Rounded.QueryStats,
                 accentColor = MaterialTheme.colorScheme.primary,
-                subtext = "Semua Kueri DNS",
+                subtext = stringResource(R.string.stat_subtext_all_queries),
                 badgeText = null,
                 modifier = Modifier.weight(1f)
             )
@@ -56,8 +56,8 @@ fun StatsGrid(
                 value = formatter.format(stats.blockedRequests),
                 icon = Icons.Rounded.Shield,
                 accentColor = StatusBlockedRed,
-                subtext = "Ancaman Dicegah",
-                badgeText = "$blockedPct Blokir",
+                subtext = stringResource(R.string.stat_subtext_threats_prevented),
+                badgeText = stringResource(R.string.stat_blocked_badge, blockedPct),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -72,8 +72,8 @@ fun StatsGrid(
                 value = formatter.format(stats.allowedRequests),
                 icon = Icons.Rounded.CheckCircle,
                 accentColor = StatusAllowedGreen,
-                subtext = "Lalu Lintas Bersih",
-                badgeText = "$allowedPct Aman",
+                subtext = stringResource(R.string.stat_subtext_clean_traffic),
+                badgeText = stringResource(R.string.stat_safe_badge, allowedPct),
                 modifier = Modifier.weight(1f)
             )
             ModernStatCard(
@@ -81,7 +81,7 @@ fun StatsGrid(
                 value = formatter.format(stats.uniqueDevices),
                 icon = Icons.Rounded.Hub,
                 accentColor = StatusInfoBlue,
-                subtext = "Klien Terhubung",
+                subtext = stringResource(R.string.stat_subtext_clients_connected),
                 badgeText = null,
                 modifier = Modifier.weight(1f)
             )

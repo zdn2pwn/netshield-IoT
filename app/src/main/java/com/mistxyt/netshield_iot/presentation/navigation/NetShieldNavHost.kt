@@ -37,6 +37,7 @@ import com.mistxyt.netshield_iot.presentation.settings.SettingsScreen
 import com.mistxyt.netshield_iot.presentation.settings.SettingsViewModel
 import com.mistxyt.netshield_iot.presentation.traffic.TrafficScreen
 import com.mistxyt.netshield_iot.presentation.traffic.TrafficViewModel
+import com.mistxyt.netshield_iot.R
 
 @Composable
 fun NetShieldMainApp(
@@ -102,14 +103,14 @@ fun NetShieldMainApp(
                             }
                             Column {
                                 Text(
-                                    text = "NetShield IoT",
+                                    text = stringResource(R.string.app_name),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     letterSpacing = (-0.3).sp
                                 )
                                 Text(
-                                    text = "Sistem Keamanan & Visibilitas DNS",
+                                    text = stringResource(R.string.nav_tagline),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -134,7 +135,7 @@ fun NetShieldMainApp(
                                         .background(MaterialTheme.colorScheme.primary)
                                 )
                                 Text(
-                                    text = "ESP32 Gateway",
+                                    text = stringResource(R.string.nav_gateway_tag),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -256,3 +257,4 @@ fun NetShieldMainApp(
         }
     }
 }
+

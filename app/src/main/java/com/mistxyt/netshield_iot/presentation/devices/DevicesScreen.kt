@@ -31,6 +31,7 @@ import com.mistxyt.netshield_iot.domain.model.DnsAction
 import com.mistxyt.netshield_iot.domain.model.DnsEvent
 import com.mistxyt.netshield_iot.presentation.components.ActionBadge
 import com.mistxyt.netshield_iot.presentation.components.EmptyStateView
+import com.mistxyt.netshield_iot.presentation.components.categoryDisplayName
 import com.mistxyt.netshield_iot.ui.theme.StatusAllowedGreen
 import com.mistxyt.netshield_iot.ui.theme.StatusBlockedRed
 import java.text.NumberFormat
@@ -82,13 +83,13 @@ fun DevicesScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Perangkat Terhubung",
+                            text = stringResource(R.string.devices_connected_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${uiState.devices.size} Perangkat Terdeteksi di Jaringan Wi-Fi",
+                            text = stringResource(R.string.devices_detected_on_wifi, uiState.devices.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -107,7 +108,7 @@ fun DevicesScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(Modifier.width(4.dp))
-                            Text("Urutkan", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.devices_sort_label), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                         }
 
                         DropdownMenu(
@@ -156,7 +157,7 @@ fun DevicesScreen(
                     onValueChange = { viewModel.onSearchQueryChange(it) },
                     placeholder = {
                         Text(
-                            "Cari nama perangkat, IP, atau model...",
+                            stringResource(R.string.devices_search_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -173,7 +174,7 @@ fun DevicesScreen(
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Hapus",
+                                    contentDescription = stringResource(R.string.action_delete),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -187,7 +188,9 @@ fun DevicesScreen(
                         focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                         unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                 )
             }
         }
@@ -353,7 +356,7 @@ fun DeviceCard(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "PAUSED",
+                                text = stringResource(R.string.device_paused_badge),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = StatusBlockedRed
@@ -389,7 +392,7 @@ fun DeviceCard(
 
                     Icon(
                         imageVector = Icons.Rounded.ChevronRight,
-                        contentDescription = "Detail",
+                        contentDescription = stringResource(R.string.action_details),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp)
                     )
@@ -406,9 +409,9 @@ fun DeviceCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                MetricColumn(label = "Total Kueri", value = formatter.format(device.requestCount))
-                MetricColumn(label = "Kueri Diblokir", value = formatter.format(device.blockedCount), valueColor = StatusBlockedRed)
-                MetricColumn(label = "Terakhir Aktif", value = DateTimeHelper.formatWibTime(device.lastActivity))
+                MetricColumn(label = stringResource(R.string.devices_total_queries), value = formatter.format(device.requestCount))
+                MetricColumn(label = stringResource(R.string.devices_blocked_queries), value = formatter.format(device.blockedCount), valueColor = StatusBlockedRed)
+                MetricColumn(label = stringResource(R.string.devices_last_seen), value = DateTimeHelper.formatWibTime(device.lastActivity))
             }
         }
     }
@@ -507,7 +510,7 @@ fun DeviceDetailBottomSheet(
                         )
                         if (!device.detectedModel.isNullOrBlank()) {
                             Text(
-                                text = "Model: ${device.detectedModel}",
+                                text = stringResource(R.string.device_model_label, device.detectedModel ?: ""),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
@@ -557,7 +560,7 @@ fun DeviceDetailBottomSheet(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text("Edit Nama")
+                    Text(stringResource(R.string.device_edit_alias))
                 }
 
                 val pauseColor = if (device.isInternetPaused) StatusBlockedRed else StatusAllowedGreen
@@ -575,7 +578,7 @@ fun DeviceDetailBottomSheet(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text(if (device.isInternetPaused) "Lanjutkan Internet" else "Jeda Internet")
+                    Text(if (device.isInternetPaused) stringResource(R.string.device_resume_internet) else stringResource(R.string.device_pause_internet))
                 }
             }
 
@@ -594,7 +597,7 @@ fun DeviceDetailBottomSheet(
                     ) {
                         Icon(Icons.Rounded.Warning, contentDescription = null, tint = StatusBlockedRed, modifier = Modifier.size(18.dp))
                         Text(
-                            text = "Akses internet perangkat ini sedang dijeda (seluruh DNS diarahkan ke 0.0.0.0).",
+                            text = stringResource(R.string.device_paused_warning),
                             style = MaterialTheme.typography.bodySmall,
                             color = StatusBlockedRed,
                             fontWeight = FontWeight.Medium
@@ -608,14 +611,14 @@ fun DeviceDetailBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                StatCardTile("Total Kueri", formatter.format(device.requestCount), Modifier.weight(1f))
-                StatCardTile("Diizinkan", formatter.format(device.allowedCount), Modifier.weight(1f), StatusAllowedGreen)
-                StatCardTile("Diblokir", formatter.format(device.blockedCount), Modifier.weight(1f), StatusBlockedRed)
+                StatCardTile(stringResource(R.string.devices_total_queries), formatter.format(device.requestCount), Modifier.weight(1f))
+                StatCardTile(stringResource(R.string.traffic_filter_allowed), formatter.format(device.allowedCount), Modifier.weight(1f), StatusAllowedGreen)
+                StatCardTile(stringResource(R.string.traffic_filter_blocked), formatter.format(device.blockedCount), Modifier.weight(1f), StatusBlockedRed)
             }
 
             // Last active
             Text(
-                text = "Aktivitas Terakhir: ${DateTimeHelper.formatWibFullDateTime(device.lastActivity)}",
+                text = stringResource(R.string.device_last_activity_label, DateTimeHelper.formatWibFullDateTime(device.lastActivity)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -629,15 +632,16 @@ fun DeviceDetailBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Riwayat Akses Domain (${displayedQueries.size})",
+                    text = stringResource(R.string.device_query_history, displayedQueries.size),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 FilterChip(
                     selected = filterBlockedOnly,
                     onClick = { filterBlockedOnly = !filterBlockedOnly },
-                    label = { Text("Hanya Diblokir", style = MaterialTheme.typography.labelSmall) },
-                    shape = RoundedCornerShape(999.dp)
+                    label = { Text(stringResource(R.string.device_blocked_only), style = MaterialTheme.typography.labelSmall) },
+                    shape = RoundedCornerShape(999.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, if (filterBlockedOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                 )
             }
 
@@ -649,8 +653,8 @@ fun DeviceDetailBottomSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (filterBlockedOnly) "Tidak ada domain diblokir untuk perangkat ini."
-                               else "Belum ada domain yang tercatat untuk perangkat ini.",
+                        text = if (filterBlockedOnly) stringResource(R.string.device_no_blocked)
+                               else stringResource(R.string.device_no_queries),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -683,14 +687,14 @@ fun DeviceDetailBottomSheet(
                 ) {
                     Icon(imageVector = Icons.Rounded.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Salin IP")
+                    Text(stringResource(R.string.action_copy_ip))
                 }
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Tutup")
+                    Text(stringResource(R.string.action_close))
                 }
             }
         }
@@ -733,18 +737,18 @@ fun EditDeviceDialog(
     var typeMenuExpanded by remember { mutableStateOf(false) }
 
     val deviceTypeLabels = mapOf(
-        DeviceType.SMARTPHONE to "Smartphone",
-        DeviceType.TABLET      to "Tablet",
-        DeviceType.LAPTOP      to "Laptop / Komputer",
-        DeviceType.ROUTER      to "Router / Gateway",
-        DeviceType.IOT         to "Smart IoT Device",
-        DeviceType.UNKNOWN     to "Lainnya"
+        DeviceType.SMARTPHONE to stringResource(R.string.device_type_smartphone),
+        DeviceType.TABLET      to stringResource(R.string.device_type_tablet),
+        DeviceType.LAPTOP     to stringResource(R.string.device_type_laptop),
+        DeviceType.ROUTER     to stringResource(R.string.device_type_router),
+        DeviceType.IOT         to stringResource(R.string.device_type_iot),
+        DeviceType.UNKNOWN    to stringResource(R.string.device_type_other)
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Edit Perangkat", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.device_edit_title), fontWeight = FontWeight.Bold)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -761,7 +765,7 @@ fun EditDeviceDialog(
                         ) {
                             Icon(Icons.Rounded.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                             Text(
-                                text = "Terdeteksi: ${device.detectedModel}",
+                                text = stringResource(R.string.device_detected_model, device.detectedModel ?: ""),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.primary
@@ -773,7 +777,7 @@ fun EditDeviceDialog(
                 OutlinedTextField(
                     value = nameText,
                     onValueChange = { nameText = it },
-                    label = { Text("Nama / Alias Kustom") },
+                    label = { Text(stringResource(R.string.device_alias_label)) },
                     placeholder = { Text(device.displayName) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -788,7 +792,7 @@ fun EditDeviceDialog(
                         value = deviceTypeLabels[selectedType] ?: "Unknown",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Tipe Perangkat") },
+                        label = { Text(stringResource(R.string.device_type_label)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeMenuExpanded) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -830,7 +834,7 @@ fun EditDeviceDialog(
                 onClick = { onConfirm(nameText, selectedType) },
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Simpan")
+                Text(stringResource(R.string.action_save))
             }
         },
         dismissButton = {
@@ -838,7 +842,7 @@ fun EditDeviceDialog(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Batal")
+                Text(stringResource(R.string.action_cancel))
             }
         },
         shape = RoundedCornerShape(20.dp)
@@ -883,7 +887,7 @@ fun DeviceQueryRow(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${event.category} • ${DateTimeHelper.formatWibTime(event.timestamp)}",
+                    text = "${categoryDisplayName(event.category)} • ${DateTimeHelper.formatWibTime(event.timestamp)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -892,3 +896,6 @@ fun DeviceQueryRow(
         }
     }
 }
+
+
+
